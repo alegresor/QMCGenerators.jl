@@ -8,6 +8,7 @@ using Documenter, QMCGenerators
 
 makedocs(
     sitename = "QMCGenerators.jl",
+    modules = [QMCGenerators],
     format = Documenter.HTML(
         prettyurls = false, # get(ENV, "CI", nothing) == "true"
         sidebar_sitename = true
