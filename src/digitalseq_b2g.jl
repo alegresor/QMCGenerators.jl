@@ -21,7 +21,7 @@ function DigitalSeqB2G(s::Int64,Cs::Matrix{BigInt})
     DigitalSeqB2G(s,Csr,m,t,alpha,n,recipd,-1,cur)
 end
 
-DigitalSeqB2G(s::Int64,path::String) = DigitalSeqB2G(s,readdlm(joinpath(@__DIR__(),"../DIGSEQ",path),BigInt))
+DigitalSeqB2G(s::Int64,path::String) = DigitalSeqB2G(s,readdlm(joinpath(@__DIR__(),"DIGSEQ",path),BigInt))
 
 DigitalSeqB2G(s::Int64) = DigitalSeqB2G(s,"sobol_Cs.col")
 

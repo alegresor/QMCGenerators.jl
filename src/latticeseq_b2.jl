@@ -17,7 +17,7 @@ function LatticeSeqB2(s::Int64,z::Vector{BigInt},m::Int64)
     LatticeSeqB2(s,z,m,n,scale,k,x)
 end
 
-LatticeSeqB2(s::Int64,path::String,m::Int64) = LatticeSeqB2(s,readdlm(joinpath(@__DIR__(),"../LATSEQ",path),BigInt)[:,1],m)
+LatticeSeqB2(s::Int64,path::String,m::Int64) = LatticeSeqB2(s,readdlm(joinpath(@__DIR__(),"LATSEQ",path),BigInt)[:,1],m)
 
 LatticeSeqB2(s::Int64) = LatticeSeqB2(s,
     BigInt[1, 182667, 469891, 498753, 110745, 446247, 250185, 118627, 245333, 283199, 
