@@ -1,5 +1,7 @@
 # QMCGenerators.jl
 
+[![Build Status](https://github.com/your-GitHub-username/QMCGenerators.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/your-GitHub-username/QMCGenerators.jl/actions/workflows/CI.yml?query=branch%3Amain)
+
 Julia version of Dirk Nuyen's [Magic Point Shop](https://people.cs.kuleuven.be/~dirk.nuyens/qmc-generators/). 
 
 ## References
