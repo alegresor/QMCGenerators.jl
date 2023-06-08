@@ -1,7 +1,7 @@
 name = "QMCGenerators"
 uuid = "fcae8fc2-2969-4f4b-b6c9-a95746d81969"
-authors = ["your-name"]
-version = "1.0.0-DEV"
+authors = ["alegresor agsorokin3@gmail.com"]
+version = "0.0.1-DEV"
 
 [compat]
 julia = "1"
