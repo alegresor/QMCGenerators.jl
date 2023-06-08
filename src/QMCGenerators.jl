@@ -1,7 +1,7 @@
 module QMCGenerators
 
 import DelimitedFiles: readdlm
-import Random: Xoshiro,MersenneTwister
+import Random: MersenneTwister
 
 bitreverse(v::BigInt, pad::Int64) = parse(BigInt,reverse(string(v,base=2,pad=pad)),base=2)
 

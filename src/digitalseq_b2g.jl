@@ -72,11 +72,11 @@ mutable struct RandomDigitalShift
     rshifts::Matrix{BigInt}
 end 
 
-RandomDigitalShift(ds::DigitalSeqB2G,r::Int64,rng::Union{Xoshiro,MersenneTwister}) = RandomDigitalShift(ds,r,rand(rng,0:(BigInt(2)^ds.t-1),r,ds.s))
+RandomDigitalShift(ds::DigitalSeqB2G,r::Int64,rng::MersenneTwister) = RandomDigitalShift(ds,r,rand(rng,0:(BigInt(2)^ds.t-1),r,ds.s))
 
-RandomDigitalShift(ds::DigitalSeqB2G,r::Int64,seed::Int64) = RandomDigitalShift(ds,r,Xoshiro(seed))
+RandomDigitalShift(ds::DigitalSeqB2G,r::Int64,seed::Int64) = RandomDigitalShift(ds,r,MersenneTwister(seed))
 
-RandomDigitalShift(ds::DigitalSeqB2G,r::Int64) = RandomDigitalShift(ds,r,Xoshiro())
+RandomDigitalShift(ds::DigitalSeqB2G,r::Int64) = RandomDigitalShift(ds,r,MersenneTwister())
 
 RandomDigitalShift(ds::DigitalSeqB2G) = RandomDigitalShift(ds,1)
 

@@ -78,11 +78,11 @@ mutable struct RandomShift
     rshifts::Matrix{Float64}
 end 
 
-RandomShift(ls::LatticeSeqB2,r::Int64,rng::Union{Xoshiro,MersenneTwister}) = RandomShift(ls,r,rand(rng,r,ls.s))
+RandomShift(ls::LatticeSeqB2,r::Int64,rng::MersenneTwister) = RandomShift(ls,r,rand(rng,r,ls.s))
 
-RandomShift(ls::LatticeSeqB2,r::Int64,seed::Int64) = RandomShift(ls,r,Xoshiro(seed))
+RandomShift(ls::LatticeSeqB2,r::Int64,seed::Int64) = RandomShift(ls,r,MersenneTwister(seed))
 
-RandomShift(ls::LatticeSeqB2,r::Int64) = RandomShift(ls,r,Xoshiro())
+RandomShift(ls::LatticeSeqB2,r::Int64) = RandomShift(ls,r,MersenneTwister())
 
 RandomShift(ls::LatticeSeqB2) = RandomShift(ls,1)
 
