@@ -1,4 +1,4 @@
 /Manifest.toml
 *.DS_Store
-*.ags.md
 docs/build/*
+ags.md

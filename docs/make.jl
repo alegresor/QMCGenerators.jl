@@ -1,9 +1,5 @@
 # https://documenter.juliadocs.org/stable/man/guide/ 
 
-#push!(LOAD_PATH,"../src/")
-
-#include("../src/qgp.jl")
-
 using Documenter, QMCGenerators
 
 makedocs(
@@ -14,10 +10,10 @@ makedocs(
         sidebar_sitename = true
         ), 
     pages = [
-        "Quasi-Monte Carlo Generators" => "index.md",
+        "Home" => "index.md",
         "Tutorial" => "tutorial.md",
-        "API" => [
-            "Lattice" => "latticeseqb2.md",
-            "Digital Net" => "digitalseqb2g.md"],
+        # "API" => [
+        #     "Lattice" => "latticeseqb2.md",
+        #     "Digital Net" => "digitalseqb2g.md"],
     ]
 )

@@ -6,7 +6,13 @@ end
 
 # Tutorial
 
-Let's start by importing `QMCGenerators` via 
+To begin, install this package with 
+
+```julia 
+Pkg.add("QMCGenerators")
+```
+
+and then import via
 
 ```julia
 using QMCGenerators
@@ -21,7 +27,7 @@ Depth = 4
 
 ## Common Usage
 
-The most common usage is to generate a single randomized quasi-random sequence. For example, to generate the first 4 points of a 3 dimensional digital net with 1 random digital shift with seed 7: 
+Often we just want to generate a single randomized quasi-random sequence. For example, to generate the first 4 points of a 3 dimensional digital net with 1 random digital shift with seed 7
 
 ```jldoctest
 Next(RandomDigitalShift(DigitalSeqB2G(3),1,7),4)
@@ -33,7 +39,7 @@ Next(RandomDigitalShift(DigitalSeqB2G(3),1,7),4)
  0.898627  0.765801   0.221646
 ```
 
-A similar API is available for Lattices:
+A similar API is available for randomly shifted Lattices:
 
 ```jldoctest
 Next(RandomShift(LatticeSeqB2(3),1,7),4)
@@ -45,7 +51,10 @@ Next(RandomShift(LatticeSeqB2(3),1,7),4)
  0.562439   0.904977  0.739613
 ```
 
-In the following sections we always supply a seed for reproducibility. Supplying a seed requires you also supply the number of randomizations as demonstrated in the single randomization examples above. However, if you do not wish to seed you can simply supply the number of randomizations. 
+!!! warning
+    While not strictly enforced, sample sizes should be powers of two to achieve full coverage of $[0,1]^s$
+
+In the following sections we always supply a seed for reproducibility. Supplying a seed requires you also supply the number of randomizations as done above. However, if you do not wish to seed, you can simply supply the number of randomizations. 
 
 ```jldoctest tut_no_seed
 rls = RandomDigitalShift(DigitalSeqB2G(12),2)
@@ -69,13 +78,17 @@ size(x)
 (16384, 52)
 ```
 
-The same API simplification holds for Lattices as well. 
+The same API simplifications holds for Lattices. 
 
 ## Structure and Functions
 
 ### Unrandomized Sequences
 
-Let's start by defining a 5 dimensional (unrandomized) digital sequence and generating the first 4
+!!! warning
+    It is highly recommended you randomize sequences. The first point of an unrandomized sequence is $0 \in [0,1]^s$ which will be transformed to an infinite values in many functions e.g. those composed with taking the inverse CDF of a $\mathcal{N}(0,1)$ as done in the section on [Quasi-Monte Carlo](@ref). 
+
+
+Let's start by defining a 5 dimensional (unrandomized) digital sequence and generating the first 4 points.
 
 ```jldoctest tut_ds
 ds = DigitalSeqB2G(5)
@@ -146,16 +159,6 @@ Next(ls,4)
  0.625  0.875  0.875  0.625  0.625
  0.375  0.125  0.125  0.375  0.375
  0.875  0.625  0.625  0.875  0.875
-```
-```jldoctest tut_ls
-Reset!(ls)
-Next(ls,4)
-# output
-4×5 Matrix{Float64}:
- 0.0   0.0   0.0   0.0   0.0
- 0.5   0.5   0.5   0.5   0.5
- 0.25  0.75  0.75  0.25  0.25
- 0.75  0.25  0.25  0.75  0.75
 ```
 ```jldoctest tut_ls; output = false
 Reset!(ls)
@@ -272,7 +275,7 @@ Next(ds,4)
  0.4375  0.9375  0.1875
 ```
 
-Alternative Lattice generating vectors are available in [this directory](https://github.com/alegresor/QMCGenerators.jl/tree/main/src/LATSEQ). For Lattices, you also need to pass the $m$ value in the file name after the path
+Alternative Lattice generating vectors are available in [this directory](https://github.com/alegresor/QMCGenerators.jl/tree/main/src/LATSEQ). For Lattices, after supplying the path you also need to pass the $m$ value in the file name
 
 ```jldoctest
 ls = LatticeSeqB2(3,"exod8_base2_m13.txt",13)
@@ -287,7 +290,7 @@ Next(ls,4)
 
 #### User Defined
 
-One may supply their own generating matrix to construction a base 2 digital sequence, for example
+One may supply their own generating matrix to construct a base 2 digital sequence, for example
 
 ```jldoctest tut_ds_custom_matrix
 m = 5
@@ -311,7 +314,7 @@ Next(ds,4)
  0.25  0.75
 ```
 
-Similarly for base 2 Lattices, except you also need to pass $m$ where $2^m$ is the maximum number of supported points 
+For base 2 Lattices, you may supply the generating vector followed by $m$ where $2^m$ is the maximum number of supported points 
 
 ```jldoctest
 generating_vector = BigInt[1,433461,315689]
@@ -347,7 +350,7 @@ FirstLinear(ds,m)
  0.875  0.875  0.125  0.375
 ```
 
-Compare this to the original ordering 
+Compare to the original ordering 
 
 ```jldoctest tut_ds_order
 Next(ds,n)
@@ -423,11 +426,21 @@ xs[1]
  0.221405  0.371174  0.324757   0.57345
 ```
 
+```jldoctest tut_ds_order_rand
+xs[2]
+# output
+4×4 Matrix{Float64}:
+ 0.428212  0.444364  0.320031   0.705377
+ 0.928212  0.944364  0.820031   0.205377
+ 0.178212  0.694364  0.570031   0.455377
+ 0.678212  0.194364  0.0700311  0.955377
+```
+
 The same functions are available for randomly shifted lattices. 
 
 ### Binary Functions for Digital Sequences
 
-For digital sequences, we sometimes want the binary representation of points. We can get the binary points as integers and then convert them to their floating point values as follows 
+For digital sequences, we sometimes want the binary representation of points. We can get the binary representations as integers and then convert them to their floating point values as follows 
 
 ```jldoctest tut_ds_binary
 ds = DigitalSeqB2G(4)
@@ -503,7 +516,7 @@ BinaryToFloat64(xbs,rds_multiple)
 Getting binary points with linear ordering is also supported. 
 
 ```jldoctest tut_ds_binary
-Reset!(ds) # resets rds_single and rds_multiple as they all use the same underlying instance
+Reset!(ds) # resets rds_single and rds_multiple as well
 FirstLinearBinary(ds,2)
 # output
 4×4 Matrix{BigInt}:
