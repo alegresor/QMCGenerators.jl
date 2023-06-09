@@ -27,5 +27,5 @@ makedocs(
 deploydocs(
     repo = "github.com/alegresor/QMCGenerators.jl.git",
     devbranch = "main",
-    versions = ["stable" => "v^", "dev" => "main"]
+    versions = ["stable" => "v^", "main" => "main"]
 )
