@@ -28,6 +28,6 @@ function plot_extensible_seq(ns = 2 .^ [6,7,8], output = true)
         ax[i].set_xticks([0,1]); ax[i].set_yticks([0,1])
         ax[i].set_aspect(1)
     end 
-    fig.savefig(joinpath(@__DIR__(),"../docs/src/assets/extensible_seq.svg"),bbox_inches="tight",transparent=true) 
+    fig.savefig(joinpath(@__DIR__(),"../docs/src/assets/extensible_seq.svg"),bbox_inches="tight",transparent=false) 
     PyPlot.close()
 end 

@@ -32,6 +32,6 @@ function plot_mc_vs_qmc(m = 16, r = 100, output = true)
     ax.set_xscale("log",base=2); ax.set_yscale("log",base=10)
     ax.spines["top"].set_visible(false); ax.spines["right"].set_visible(false)
     ax.legend(loc="lower left",frameon=false)
-    fig.savefig(joinpath(@__DIR__(),"../docs/src/assets/mc_vs_qmc.svg"),bbox_inches="tight",transparent=true)
+    fig.savefig(joinpath(@__DIR__(),"../docs/src/assets/mc_vs_qmc.svg"),bbox_inches="tight",transparent=false)
     PyPlot.close()
 end

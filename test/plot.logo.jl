@@ -17,9 +17,9 @@ function plot_logo(output = true)
     end
     ax.spines["top"].set_visible(false); ax.spines["bottom"].set_visible(false); ax.spines["left"].set_visible(false); ax.spines["right"].set_visible(false) 
     ax.set_xlim([0,1]); ax.set_ylim([0,1]); ax.set_xticks([]); ax.set_yticks([]); ax.set_aspect(1)
-    for i=0:8 ax.axvline(x=i/8,color="k",alpha=.25); ax.axhline(y=i/8,color="k",alpha=.25) end 
-    for i=0:4 ax.axvline(x=i/4,color="k",alpha=.5); ax.axhline(y=i/4,color="k",alpha=.5) end 
-    for i=0:2 ax.axvline(x=i/2,color="k",alpha=.75); ax.axhline(y=i/2,color="k",alpha=.75) end 
+    for i=1:7 ax.axvline(x=i/8,color=colors[3],alpha=1); ax.axhline(y=i/8,color=colors[3],alpha=1) end 
+    for i=1:3 ax.axvline(x=i/4,color=colors[2],alpha=1); ax.axhline(y=i/4,color=colors[2],alpha=1) end 
+    for i=1:1 ax.axvline(x=i/2,color=colors[1],alpha=1); ax.axhline(y=i/2,color=colors[1],alpha=1) end 
     fig.savefig(joinpath(@__DIR__(),"../docs/src/assets/logo.svg"),bbox_inches="tight",transparent=true)
     PyPlot.close()
 end 
