@@ -16,12 +16,12 @@ function plot_extensible_seq(ns = 2 .^ [6,7,8], output = true)
     nmin = NaN
     for i=1:ncols
         name,xfull = xsets[i]
-        global nmin = 1
+        local nmin = 1
         for j=1:size(ns,1)
             nmax = ns[j]
             x = xfull[nmin:nmax,:]
             ax[i].scatter(x[:,1],x[:,2],s=10,color=colors[j])
-            global nmin = nmax+1
+            nmin = nmax+1
         end
         ax[i].set_title(name)
         ax[i].set_xlim([0,1]); ax[i].set_ylim([0,1])
