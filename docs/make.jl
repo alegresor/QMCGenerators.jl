@@ -21,6 +21,7 @@ makedocs(
         #     "Lattice" => "latticeseqb2.md",
         #     "Digital Net" => "digitalseqb2g.md"],
     ],
+    strict = true
 )
 
 deploydocs(
