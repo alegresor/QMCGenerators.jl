@@ -24,7 +24,7 @@ for $f: [0,1]^s \to \mathbb{R}$ and $X \sim \mathcal{U}[0,1]^s$ by the sample me
 
 $$\hat{\mu} = \frac{1}{n} \sum_{i=0}^{n-1} f(X_i)$$
 
-where $X_0,X_1,\dots \sim \mathcal{U}[0,1]^s$. If $(X_i)_{i \geq 0}$ are chosen to be pseudo-random, then the sample average is a *Simple Monte Carlo* approximation with error $\mathcal{O}(1/\sqrt{n})$. If instead we choose $(X_i)_{i \geq 0}$ to be quasi-random then the sample average is a *Quasi-Monte Carlo* approximation with error approaching $\mathcal{O}(1/n)$. 
+where $X_0,X_1,\dots \sim \mathcal{U}[0,1]^s$. If $X_i$ are chosen to be pseudo-random, then the sample average is a *Simple Monte Carlo* approximation with error $\mathcal{O}(n^{-1/2})$. If instead we choose $X_i$ to be quasi-random then the sample average is a *Quasi-Monte Carlo* approximation with error approaching $\mathcal{O}(n^{-1})$. 
 
 ![image](./docs/src/assets/mc_vs_qmc.svg)
 
