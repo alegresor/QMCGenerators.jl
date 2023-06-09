@@ -11,7 +11,7 @@ makedocs(
     sitename = "QMCGenerators.jl",
     modules = [QMCGenerators],
     format = Documenter.HTML(
-        prettyurls = false, # get(ENV, "CI", nothing) == "true"
+        prettyurls = get(ENV, "CI", nothing) == "true",
         sidebar_sitename = true
         ), 
     pages = [
@@ -21,5 +21,8 @@ makedocs(
         #     "Lattice" => "latticeseqb2.md",
         #     "Digital Net" => "digitalseqb2g.md"],
     ],
+)
+
+deploydocs(
     repo = "github.com/alegresor/QMCGenerators.jl.git",
 )
