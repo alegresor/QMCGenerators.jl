@@ -20,5 +20,6 @@ makedocs(
         # "API" => [
         #     "Lattice" => "latticeseqb2.md",
         #     "Digital Net" => "digitalseqb2g.md"],
-    ]
+    ],
+    repo = "github.com/alegresor/QMCGenerators.jl.git",
 )
