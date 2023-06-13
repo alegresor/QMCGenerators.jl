@@ -19,7 +19,7 @@ function plot_mc_vs_qmc(m = 16, r = 100, output = true)
     for k=1:size(xsets,1)
         name,xs = xsets[k]
         ys = vcat(map(i->f(xs[i]),1:r)'...)
-        muhats = cumsum(ys,dims=2); for i=1:r muhats[i,:] = muhats[i,:]./range(1,n) end 
+        muhats = cumsum(ys,dims=2); for i=1:r muhats[i,:] = muhats[i,:]./[i for i=1:n] end 
         err = abs.(muhats.-mu)
         pows2 = 2 .^ (0:m)
         qlowerr = map(p2->quantile(err[:,p2],.35),pows2)
