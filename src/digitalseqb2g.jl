@@ -21,7 +21,7 @@ function DigitalSeqB2G(s::Int64,Cs::Matrix{BigInt})
     DigitalSeqB2G(s,Csr,m,t,alpha,n,recipd,-1,cur)
 end
 
-DigitalSeqB2G(s::Int64,path::String) = DigitalSeqB2G(s,readdlm(download(joinpath("https://raw.githubusercontent.com/alegresor/QMCGenerators.jl/main/src/DIGSEQ/",path)),BigInt))
+DigitalSeqB2G(s::Int64,path::String) = DigitalSeqB2G(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt))
 
 DigitalSeqB2G(s::Int64) = DigitalSeqB2G(s,DEFAULT_DIGITALSEQB2G_GMATRIX)
 

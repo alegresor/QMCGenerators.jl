@@ -262,7 +262,7 @@ Reset!(rls)
 
 #### Pregenerated
 
-We include many alternative generating matrices for digital sequences in [this directory](https://github.com/alegresor/QMCGenerators.jl/tree/main/src/DIGSEQ). To use an alternative, simply supply the relative path 
+We include many alternative generating matrices for digital sequences in [this directory](https://bitbucket.org/dnuyens/qmc-generators/src/master/DIGSEQ/). To use an alternative, simply supply the relative path 
 
 ```jldoctest 
 ds = DigitalSeqB2G(3,"sobolmats/sobol_alpha2_Bs64.col")
@@ -275,7 +275,7 @@ Next(ds,4)
  0.4375  0.9375  0.1875
 ```
 
-Alternative Lattice generating vectors are available in [this directory](https://github.com/alegresor/QMCGenerators.jl/tree/main/src/LATSEQ). For Lattices, after supplying the path you also need to pass the $m$ value in the file name
+Alternative Lattice generating vectors are available in [this directory](https://bitbucket.org/dnuyens/qmc-generators/src/master/LATSEQ/). For Lattices, after supplying the path you also need to pass the $m$ value in the file name
 
 ```jldoctest
 ls = LatticeSeqB2(3,"exod8_base2_m13.txt",13)

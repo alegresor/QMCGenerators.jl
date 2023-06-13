@@ -1,6 +1,0 @@
-The Sobol' sequence in this directory is the " new-joe-kuo-6.21201 " from
-http://web.maths.unsw.edu.au/~fkuo/sobol/ in the column format for the
-generators of the QMC4PDE and MagicPointShop website.
-
-See S. Joe and F. Y. Kuo, Constructing Sobol sequences with better
-two-dimensional projections, SIAM J. Sci. Comput. 30, 2635-2654 (2008).
