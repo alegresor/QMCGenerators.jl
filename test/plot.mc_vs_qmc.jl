@@ -28,7 +28,7 @@ function plot_mc_vs_qmc(m = 16, r = 100, output = true)
         ax.plot(pows2,qmid,color=colors[k],label=name)
         ax.fill_between(pows2,qhigherr,qlowerr,color=colors[k],alpha=.25)
     end
-    ax.set_xlim([1,n]); ax.set_xlabel("samples"); ax.set_ylabel("error")
+    ax.set_xlim([1,n]); ax.set_xlabel(raw"$n$"); ax.set_ylabel(raw"$\lvert \hat{\mu} - \mu \rvert$")
     ax.set_xscale("log",base=2); ax.set_yscale("log",base=10)
     ax.spines["top"].set_visible(false); ax.spines["right"].set_visible(false)
     ax.legend(loc="lower left",frameon=false)
