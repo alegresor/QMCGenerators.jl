@@ -6,6 +6,11 @@ end
 
 # Tutorial
 
+```@contents
+Pages = ["tutorial.md"]
+Depth = 4
+```
+
 To begin, install this package with 
 
 ```julia 
@@ -16,13 +21,6 @@ and then import via
 
 ```julia
 using QMCGenerators
-```
-
-## Table of Contents 
-
-```@contents
-Pages = ["tutorial.md"]
-Depth = 4
 ```
 
 ## Common Usage
