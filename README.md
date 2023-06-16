@@ -1,6 +1,6 @@
 # Quasi-Monte Carlo Generators
 
-Julia version of Dirk Nuyen's [Magic Point Shop](https://people.cs.kuleuven.be/~dirk.nuyens/qmc-generators/). 
+Julia version of Dirk Nuyens' [Magic Point Shop](https://people.cs.kuleuven.be/~dirk.nuyens/qmc-generators/). 
 
 See the [Tutorial](https://alegresor.github.io/QMCGenerators.jl/stable/tutorial) for instructions on how to use this package.  
 
