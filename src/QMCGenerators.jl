@@ -2,6 +2,8 @@ module QMCGenerators
 
 import DelimitedFiles: readdlm
 import Random: MersenneTwister
+import GLMakie
+using LaTeXStrings
 
 bitreverse(v::BigInt, pad::Int64) = parse(BigInt,reverse(string(v,base=2,pad=pad)),base=2)
 
@@ -12,6 +14,9 @@ export DigitalSeqB2G,RandomDigitalShift,BinaryToFloat64,NextBinary,NextRBinary,F
 include("latticeseqb2_default_gvector.jl")
 include("latticeseqb2.jl")
 export LatticeSeqB2,RandomShift
+
+include("util.jl")
+export qmcscatter!
 
 export Next,NextR,Reset!,FirstRLinear,FirstLinear
 
