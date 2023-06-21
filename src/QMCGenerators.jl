@@ -2,7 +2,7 @@ module QMCGenerators
 
 import DelimitedFiles: readdlm
 import Random: MersenneTwister
-import GLMakie
+import CairoMakie
 using LaTeXStrings
 
 bitreverse(v::BigInt, pad::Int64) = parse(BigInt,reverse(string(v,base=2,pad=pad)),base=2)
