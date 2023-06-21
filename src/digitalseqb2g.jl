@@ -1,4 +1,5 @@
 mutable struct DigitalSeqB2G
+    name::String
     s::Int64 # dimension
     Csr::Matrix{BigInt} # matrix of size at least (s,m)
     m::Int64 # number of columns, can generate 2^m points
@@ -18,75 +19,77 @@ function DigitalSeqB2G(s::Int64,Cs::Matrix{BigInt})
     n = 2^m
     recipd = t>53 ? BigFloat(2)^(-t) : Float64(2)^(-t)
     cur = zeros(BigInt,s)
-    DigitalSeqB2G(s,Csr,m,t,alpha,n,recipd,-1,cur)
+    DigitalSeqB2G("Digital Seq  B2",s,Csr,m,t,alpha,n,recipd,-1,cur)
 end
 
 DigitalSeqB2G(s::Int64,path::String) = DigitalSeqB2G(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt))
 
 DigitalSeqB2G(s::Int64) = DigitalSeqB2G(s,DEFAULT_DIGITALSEQB2G_GMATRIX)
 
-function Reset!(ds::DigitalSeqB2G) 
-    ds.k = -1 
-    ds.cur = zeros(BigInt,ds.s)
+function Reset!(seq::DigitalSeqB2G) 
+    seq.k = -1 
+    seq.cur = zeros(BigInt,seq.s)
+    return 
 end 
 
-function NextBinary!(ds::DigitalSeqB2G)
-    ds.k += 1
-    ds.k == ds.n && throw(DomainError(ds.k,"already generated maximum number of points"))
-    if ds.k==0 return end 
-    ctz = ndigits(((ds.k ⊻ (ds.k-1))+1) >> 1, base=2) - 1
-    ds.cur .⊻= ds.Csr[:,(ctz+1)]
+function NextBinary!(seq::DigitalSeqB2G)
+    seq.k += 1
+    seq.k == seq.n && throw(DomainError(seq.k,"already generated maximum number of points"))
+    if seq.k==0 return end 
+    ctz = ndigits(((seq.k ⊻ (seq.k-1))+1) >> 1, base=2) - 1
+    seq.cur .⊻= seq.Csr[:,(ctz+1)]
 end
 
-function NextBinary(ds::DigitalSeqB2G,n::Int64)
-    xb = zeros(BigInt,n,ds.s)
+function NextBinary(seq::DigitalSeqB2G,n::Int64)
+    xb = zeros(BigInt,n,seq.s)
     for i=1:n
-        NextBinary!(ds)
-        xb[i,:] = ds.cur
+        NextBinary!(seq)
+        xb[i,:] = seq.cur
     end
     xb
 end
 
-BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},ds::DigitalSeqB2G) = convert.(Float64,ds.recipd*xb)
+BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},seq::DigitalSeqB2G) = convert.(Float64,seq.recipd*xb)
 
-Next(ds::DigitalSeqB2G,n::Int64) = BinaryToFloat64(NextBinary(ds,n),ds)
+Next(seq::DigitalSeqB2G,n::Int64) = BinaryToFloat64(NextBinary(seq,n),seq)
 
-Next(ds::DigitalSeqB2G) = Next(ds,1)
+Next(seq::DigitalSeqB2G) = Next(seq,1)
 
-function FirstLinearBinary(ds::DigitalSeqB2G,m::Int64)
-    @assert ds.k==-1
+function FirstLinearBinary(seq::DigitalSeqB2G,m::Int64)
+    @assert seq.k==-1
     n = 2^m
-    xb = NextBinary(ds,n)
+    xb = NextBinary(seq,n)
     gcs = map(i->i⊻(i>>1),0:n-1)
     xbl = zeros(BigInt,size(xb))
     for i=1:n xbl[gcs[i]+1,:] .= xb[i,:] end 
-    Reset!(ds)
+    Reset!(seq)
     xbl
 end
 
-FirstLinear(ds::DigitalSeqB2G,m::Int64) = BinaryToFloat64(FirstLinearBinary(ds,m),ds)
+FirstLinear(seq::DigitalSeqB2G,m::Int64) = BinaryToFloat64(FirstLinearBinary(seq,m),seq)
 
 mutable struct RandomDigitalShift
-    ds::DigitalSeqB2G
+    name::String
+    seq::DigitalSeqB2G
     r::Int64
     rshifts::Matrix{BigInt}
 end 
 
-RandomDigitalShift(ds::DigitalSeqB2G,r::Int64,rng::MersenneTwister) = RandomDigitalShift(ds,r,rand(rng,0:(BigInt(2)^ds.t-1),r,ds.s))
+RandomDigitalShift(seq::DigitalSeqB2G,r::Int64,rng::MersenneTwister) = RandomDigitalShift("Digital Seq B2 + Random Shift",seq,r,rand(rng,0:(BigInt(2)^seq.t-1),r,seq.s))
 
-RandomDigitalShift(ds::DigitalSeqB2G,r::Int64,seed::Int64) = RandomDigitalShift(ds,r,MersenneTwister(seed))
+RandomDigitalShift(seq::DigitalSeqB2G,r::Int64,seed::Int64) = RandomDigitalShift(seq,r,MersenneTwister(seed))
 
-RandomDigitalShift(ds::DigitalSeqB2G,r::Int64) = RandomDigitalShift(ds,r,MersenneTwister())
+RandomDigitalShift(seq::DigitalSeqB2G,r::Int64) = RandomDigitalShift(seq,r,MersenneTwister())
 
-RandomDigitalShift(ds::DigitalSeqB2G) = RandomDigitalShift(ds,1)
+RandomDigitalShift(seq::DigitalSeqB2G) = RandomDigitalShift(seq,1)
 
 function Reset!(rds::RandomDigitalShift) 
-    Reset!(rds.ds)
+    Reset!(rds.seq)
 end
 
 DigitalShifts(xb,rds) = [rds.rshifts[i,:]' .⊻ xb for i=1:rds.r]
 
-NextRBinary(rds::RandomDigitalShift,n::Int64) = DigitalShifts(NextBinary(rds.ds,n),rds)
+NextRBinary(rds::RandomDigitalShift,n::Int64) = DigitalShifts(NextBinary(rds.seq,n),rds)
 
 NextRBinary(rds::RandomDigitalShift) = NextRBinary(rds,1)
 
@@ -97,7 +100,7 @@ end
 
 NextBinary(rds::RandomDigitalShift) = NextBinary(rds,1)
 
-BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},rds::RandomDigitalShift) = BinaryToFloat64(xb,rds.ds)
+BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},rds::RandomDigitalShift) = BinaryToFloat64(xb,rds.seq)
 
 BinaryToFloat64(xbs::Vector{Matrix{BigInt}},rds::RandomDigitalShift) = [BinaryToFloat64(xb,rds) for xb in xbs]
 
@@ -112,7 +115,7 @@ end
 
 Next(rds::RandomDigitalShift) = Next(rds,1)
 
-FirstRLinearBinary(rds::RandomDigitalShift,m::Int64) = DigitalShifts(FirstLinearBinary(rds.ds,m),rds)
+FirstRLinearBinary(rds::RandomDigitalShift,m::Int64) = DigitalShifts(FirstLinearBinary(rds.seq,m),rds)
 
 function FirstLinearBinary(rds::RandomDigitalShift,m::Int64)
     rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))

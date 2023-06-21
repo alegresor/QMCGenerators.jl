@@ -44,9 +44,23 @@ function qmcscatter!(seq::Union{DigitalSeqB2G,LatticeSeqB2},nvec::Union{Int64,Ve
 end
 
 function qmcscatter!(rseq::Union{RandomDigitalShift,RandomShift},nvec::Union{Int64,Vector{Int64}},args...)
-    if typeof(rseq) == RandomDigitalShift @assert rseq.ds.k == -1 end 
-    if typeof(rseq) == RandomShift @assert rseq.ls.k == -1 end 
+    @assert rseq.seq.k == -1 
     xs = NextR(rseq,maximum(nvec))
     Reset!(rseq)
     qmcscatter!(xs,nvec,args...)
+end
+
+function qmcscatter!(nvec::Union{Int64,Vector{Int64}},args...;seqs...)
+    for (key,seq) in seqs
+        if typeof(seq) in [RandomDigitalShift,RandomShift]
+            @assert seq.r == 1
+            @assert seq.seq.k == -1
+        else 
+            @assert seq.k == -1
+        end 
+    end
+    xs = [Next(seq,maximum(nvec)) for (key,seq) in seqs]
+    fig = qmcscatter!(xs,nvec,args...)
+    [fig.content[i].title = seq.name for (i,(key,seq)) in enumerate(seqs)]
+    fig
 end

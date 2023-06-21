@@ -1,4 +1,5 @@
 mutable struct LatticeSeqB2
+    name::String
     s::Int64 # dimension 
     z::Vector{BigInt} # generating vector 
     m::Int64 # 2^m points supported
@@ -14,63 +15,65 @@ function LatticeSeqB2(s::Int64,z::Vector{BigInt},m::Int64)
     scale = m>53 ? BigFloat(2)^(-m) : Float64(2)^(-m)
     k = -1
     x = zeros(BigFloat,s)
-    LatticeSeqB2(s,z,m,n,scale,k,x)
+    LatticeSeqB2("Lattice Seq B2",s,z,m,n,scale,k,x)
 end
 
 LatticeSeqB2(s::Int64,path::String,m::Int64) = LatticeSeqB2(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/LATSEQ/",path)),BigInt)[:,1],m)
 
 LatticeSeqB2(s::Int64) = LatticeSeqB2(s,DEFAULT_LATTICESEQB2_GVECTOR,20)
 
-function Reset!(ls::LatticeSeqB2)
-    ls.k = -1 
+function Reset!(seq::LatticeSeqB2)
+    seq.k = -1 
+    return
 end
 
-function Next(ls::LatticeSeqB2)
-    ls.k = ls.k+1 
-    ls.k == ls.n && throw(DomainError(ls.k,"already generated maximum number of points"))
-    phik = bitreverse(BigInt(ls.k),ls.m)*ls.scale 
-    for j=1:ls.s 
-        ls.x[j] = phik*ls.z[j]
-        ls.x[j] = ls.x[j]-floor(ls.x[j])
+function Next(seq::LatticeSeqB2)
+    seq.k = seq.k+1 
+    seq.k == seq.n && throw(DomainError(seq.k,"already generated maximum number of points"))
+    phik = bitreverse(BigInt(seq.k),seq.m)*seq.scale 
+    for j=1:seq.s 
+        seq.x[j] = phik*seq.z[j]
+        seq.x[j] = seq.x[j]-floor(seq.x[j])
     end
-    convert.(Float64,ls.x)
+    convert.(Float64,seq.x)
 end
 
-function Next(ls::LatticeSeqB2,n::Int64)
-    x = zeros(Float64,n,ls.s)
+function Next(seq::LatticeSeqB2,n::Int64)
+    x = zeros(Float64,n,seq.s)
     for i=1:n
-        x[i,:] = Next(ls)
+        x[i,:] = Next(seq)
     end 
     x 
 end 
 
-function FirstLinear(ls::LatticeSeqB2,m::Int64)
+function FirstLinear(seq::LatticeSeqB2,m::Int64)
     n = 2^m
-    x = [i for i=0:(n-1)]*ls.z[1:ls.s]'./n
+    x = [i for i=0:(n-1)]*seq.z[1:seq.s]'./n
     x = x.-floor.(x)
     convert.(Float64,x)
 end 
 
 mutable struct RandomShift
-    ls::LatticeSeqB2
+    name::String
+    seq::LatticeSeqB2
     r::Int64
     rshifts::Matrix{Float64}
 end 
 
-RandomShift(ls::LatticeSeqB2,r::Int64,rng::MersenneTwister) = RandomShift(ls,r,rand(rng,r,ls.s))
+RandomShift(seq::LatticeSeqB2,r::Int64,rng::MersenneTwister) = RandomShift("Lattice Seq B2 + Random Shift",seq,r,rand(rng,r,seq.s))
 
-RandomShift(ls::LatticeSeqB2,r::Int64,seed::Int64) = RandomShift(ls,r,MersenneTwister(seed))
+RandomShift(seq::LatticeSeqB2,r::Int64,seed::Int64) = RandomShift(seq,r,MersenneTwister(seed))
 
-RandomShift(ls::LatticeSeqB2,r::Int64) = RandomShift(ls,r,MersenneTwister())
+RandomShift(seq::LatticeSeqB2,r::Int64) = RandomShift(seq,r,MersenneTwister())
 
-RandomShift(ls::LatticeSeqB2) = RandomShift(ls,1)
+RandomShift(seq::LatticeSeqB2) = RandomShift(seq,1)
 
 function Reset!(rls::RandomShift)
-    Reset!(rls.ls)
+    Reset!(rls.seq)
 end
 
 function NextR(rls::RandomShift,n::Int64)
-    xu = Next(rls.ls,n)
+    xu = Next(rls.seq,n)
     [(xu.+rls.rshifts[i,:]').%1 for i=1:rls.r]
 end 
 
@@ -84,7 +87,7 @@ end
 Next(rls::RandomShift) = Next(rls,1)
 
 function FirstRLinear(rls::RandomShift,m::Int64)
-    xu = FirstLinear(rls.ls,m)
+    xu = FirstLinear(rls.seq,m)
     [(xu.+rls.rshifts[i,:]').%1 for i=1:rls.r]
 end 
 

@@ -1,7 +1,7 @@
 module QMCGenerators
 
 import DelimitedFiles: readdlm
-import Random: MersenneTwister
+import Random: MersenneTwister,seed!
 import CairoMakie
 using LaTeXStrings
 
@@ -15,9 +15,12 @@ include("latticeseqb2_default_gvector.jl")
 include("latticeseqb2.jl")
 export LatticeSeqB2,RandomShift
 
-include("util.jl")
-export qmcscatter!,JULIA4LOGOCOLORS
+include("iidu01seq.jl")
+export IIDU01Seq
 
 export Next,NextR,Reset!,FirstRLinear,FirstLinear
+
+include("util.jl")
+export qmcscatter!,JULIA4LOGOCOLORS
 
 end 
