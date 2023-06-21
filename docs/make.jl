@@ -7,8 +7,8 @@ readme = replace(readme,"https://alegresor.github.io/QMCGenerators.jl/stable/tut
 readme = replace(readme,"./docs/src"=>".")
 write(joinpath(@__DIR__(),"./src/index.md"),readme)
 
-tutplotdir = joinpath(@__DIR__,"src/assets/tutorial")
-if ~isdir(tutplotdir) mkdir(tutplotdir) end
+assetsdir = joinpath(@__DIR__,"src/assets")
+if ~isdir(assetsdir) mkdir(assetsdir) end
 
 println("DOCTEST")
 makedocs(

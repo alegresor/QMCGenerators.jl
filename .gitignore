@@ -4,4 +4,4 @@ docs/build/*
 ags.md
 docs/src/index.md
 *.png
-docs/src/assets/tutorial/*.svg
+docs/src/assets/*.svg

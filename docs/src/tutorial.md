@@ -1,8 +1,10 @@
 ```@meta
 DocTestSetup = quote
     using QMCGenerators
-    using Random: MersenneTwister
     using CairoMakie
+    using Random: MersenneTwister
+    using Distributions
+    using LinearAlgebra
 end
 ```
 
@@ -609,9 +611,9 @@ using CairoMakie
 We will save plots to 
 
 ```jldoctest plots; output = false
-PLOTDIR = joinpath(@__DIR__,"src/assets/tutorial/")
+PLOTDIR = joinpath(@__DIR__,"src/assets")
 # output
-"/Users/alegresor/Desktop/QMCGenerators.jl/docs/src/assets/tutorial/"
+"/Users/alegresor/Desktop/QMCGenerators.jl/docs/src/assets"
 ```
 
 ### Single Projection
@@ -625,7 +627,7 @@ save(joinpath(PLOTDIR,"basic.svg"),fig)
 CairoMakie.Screen{SVG}
 ```
 
-![image](./assets/tutorial/basic.svg)
+![image](./assets/basic.svg)
 
 ### Extensibility 
 
@@ -637,7 +639,7 @@ save(joinpath(PLOTDIR,"extensibility.svg"),fig)
 CairoMakie.Screen{SVG}
 ```
 
-![image](./assets/tutorial/extensibility.svg)
+![image](./assets/extensibility.svg)
 
 ### Multiple Projections
 
@@ -649,7 +651,7 @@ save(joinpath(PLOTDIR,"projections.svg"),fig)
 CairoMakie.Screen{SVG}
 ```
 
-![image](./assets/tutorial/projections.svg)
+![image](./assets/projections.svg)
 
 ### Multiple Randomizations
 
@@ -661,7 +663,7 @@ save(joinpath(PLOTDIR,"randomizations.svg"),fig)
 CairoMakie.Screen{SVG}
 ```
 
-![image](./assets/tutorial/randomizations.svg)
+![image](./assets/randomizations.svg)
 
 ### Comparison of Sequences
 
@@ -675,4 +677,69 @@ save(joinpath(PLOTDIR,"seq_comparison.svg"),fig)
 CairoMakie.Screen{SVG}
 ```
 
-![image](./assets/tutorial/seq_comparison.svg)
+![image](./assets/seq_comparison.svg)
+
+### MC vs QMC
+
+```jldoctest plots; output = false
+m = 16
+r = 100
+seed = 7
+n = 2^m
+s,mu = 7,-11.05684907978818
+rng = MersenneTwister(seed)
+rseqs = [IIDU01Seq(s,seed),RandomShift(LatticeSeqB2(s),r,seed),RandomDigitalShift(DigitalSeqB2G(s),r,seed)]
+xsets = [
+    [Next(rseqs[1],n) for k=1:r],
+    NextR(rseqs[2],n),
+    NextR(rseqs[3],n)]
+f(x::Vector{Float64}) = π^(s/2)*cos(norm(quantile.(Normal(),x)/sqrt(2)));
+f(x::Matrix{Float64}) = map(i->f(x[i,:]),1:size(x,1))
+fig = Figure(resolution=(800,500))
+ax = Axis(fig[2,1],
+    xlabel = L"$n$",
+    ylabel = L"$| \hat{\mu} - \mu |$",
+    yscale = log10,
+    xscale = log2)
+xlims!(ax,[1,n])
+for k=1:size(xsets,1)
+    name,xs = rseqs[k].name,xsets[k]
+    ys = vcat(map(i->f(xs[i]),1:r)'...)
+    muhats = cumsum(ys,dims=2); for i=1:r muhats[i,:] = muhats[i,:]./[i for i=1:n] end 
+    err = abs.(muhats.-mu)
+    pows2 = 2 .^ (0:m)
+    qlowerr = map(p2->quantile(err[:,p2],.35),pows2)
+    qmid = map(p2->quantile(err[:,p2],.5),pows2)
+    qhigherr = map(p2->quantile(err[:,p2],.65),pows2)
+    lines!(ax,pows2,qmid,color=JULIA4LOGOCOLORS[k],label=name,linewidth=3)
+    band!(pows2,qhigherr,qlowerr,color=(JULIA4LOGOCOLORS[k],.3))
+end
+fig[1,1] = Legend(fig,ax,framevisible=false,orientation=:horizontal)
+hidespines!(ax, :t, :r)
+save(joinpath(PLOTDIR,"mc_vs_qmc.svg"),fig)
+# output
+CairoMakie.Screen{SVG}
+```
+
+![image](./assets/mc_vs_qmc.svg)
+
+### Logo 
+
+```jldoctest plots; output = false
+nvec = [1,4,16,64]
+rds = RandomDigitalShift(DigitalSeqB2G(2),1,17)
+x = Next(rds,maximum(nvec))
+fig = Figure(resolution=(500,500),backgroundcolor=:transparent)
+ax = Axis(fig[1,1],aspect=1,xticklabelsvisible=false,yticklabelsvisible=false,backgroundcolor=:transparent)
+qmcscatter!(ax,x,nvec)
+limits!(ax,[-0.01,1.01],[-0.01,1.01])
+for i=1:7 vlines!(ax,i/8,color=JULIA4LOGOCOLORS[3],alpha=1); hlines!(ax,i/8,color=JULIA4LOGOCOLORS[3],alpha=1) end 
+for i=1:3 vlines!(ax,i/4,color=JULIA4LOGOCOLORS[2],alpha=1); hlines!(ax,i/4,color=JULIA4LOGOCOLORS[2],alpha=1) end 
+for i=1:1 vlines!(ax,i/2,color=JULIA4LOGOCOLORS[1],alpha=1); hlines!(ax,i/2,color=JULIA4LOGOCOLORS[1],alpha=1) end 
+hidespines!(ax); hidedecorations!(ax); hidexdecorations!(ax,grid = false); hideydecorations!(ax, ticks = false)
+save(joinpath(PLOTDIR,"logo.svg"),fig)
+# output
+CairoMakie.Screen{SVG}
+```
+
+![image](./assets/logo.svg)

@@ -13,7 +13,7 @@ end
 function qmcscatter!(xs::Vector{Matrix{Float64}},nvec::Vector{Int64},dvec::Matrix{Int64}=[1 2;])
     @assert all(size(xs[j],2) >= maximum(dvec) for j=1:length(xs))
     nrows,ncols = size(dvec,1),length(xs)
-    fig = CairoMakie.Figure(backgroundcolor=:white, resolution=(400*ncols,400*nrows))
+    fig = CairoMakie.Figure(backgroundcolor=:white, resolution=(450*ncols,450*nrows+100))
     ax = NaN
     for i=1:nrows
         for j=1:ncols

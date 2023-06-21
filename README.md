@@ -10,9 +10,9 @@ See the [Tutorial](https://alegresor.github.io/QMCGenerators.jl/stable/tutorial)
 
 This package implements two flavors of quasi-random sequences: *Lattice* rules and *digital nets*, both in base 2. Independent randomizations may be applied to base sequences via *random shifts for Lattices* and *random digital shifts for digital nets*.  
 
-![image](./docs/src/assets/extensible_seq.svg)
+![image](./docs/src/assets/seq_comparison.svg)
 
-Notice the gaps and clusters of the above pseudo-random points compared to the more even coverage of quasi-random points. The implemented quasi-random sequences are extensible, meaning you may increase the sample size through powers of two to better fill the space. Above, each plot starts with $2^6$ purple points. Doubling the sample size to $2^7$ adds the green points. Doubling again to $2^8$ samples adds the blue points. 
+Notice the gaps and clusters of the above pseudo-random points compared to the more even coverage of quasi-random points. The implemented quasi-random sequences are extensible, meaning you may increase the sample size through powers of two to better fill the space. Above, each plot starts with $2^6$ blue points. Doubling the sample size to $2^7$ adds the green points. Doubling again to $2^8$ samples adds the purple points. 
 
 ## Quasi-Monte Carlo
 
@@ -28,7 +28,7 @@ where $X_0,X_1,\dots \sim \mathcal{U}[0,1]^s$. If $X_i$ are chosen to be pseudo-
 
 ![image](./docs/src/assets/mc_vs_qmc.svg)
 
-The above example approximates $\mu = \mathbb{E}[g(T)]$ where $g: \mathbb{R}^s \to \mathbb{R}$ is the [Keister function](https://pubs.aip.org/aip/cip/article-abstract/10/2/119/136436/Multidimensional-Quadrature-Algorithms?redirectedFrom=PDF) 
+The above example approximates $\mu = \mathbb{E}[g(T)]$ where $g: \mathbb{R}^s \to \mathbb{R}$ is the [Keister function](https://pubs.aip.org/aip/cip/article-abstract/10/2/119/136436/Multidimensional-Quadrature-Algorithms?redirectedFrom=PDF)
 
 $$g(t) = \pi^{s/2} \cos( \lVert t \rVert_2)$$
 
