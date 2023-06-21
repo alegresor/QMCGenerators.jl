@@ -608,17 +608,10 @@ To save figures we need to ensure we are
 using CairoMakie
 ```
 
-We will save plots to 
-
-```jldoctest plots; output = false
-PLOTDIR = joinpath(@__DIR__,"src/assets")
-# output
-"/Users/alegresor/Desktop/QMCGenerators.jl/docs/src/assets"
-```
-
 ### Single Projection
 
 ```jldoctest plots; output = false
+PLOTDIR = joinpath(@__DIR__,"src/assets")
 n = 2^6
 ds = DigitalSeqB2G(3)
 fig = qmcscatter!(ds,n)
@@ -687,7 +680,6 @@ r = 100
 seed = 7
 n = 2^m
 s,mu = 7,-11.05684907978818
-rng = MersenneTwister(seed)
 rseqs = [IIDU01Seq(s,seed),RandomShift(LatticeSeqB2(s),r,seed),RandomDigitalShift(DigitalSeqB2G(s),r,seed)]
 xsets = [
     [Next(rseqs[1],n) for k=1:r],
