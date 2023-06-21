@@ -13,7 +13,8 @@ end
 function qmcscatter!(xs::Vector{Matrix{Float64}},nvec::Vector{Int64},dvec::Matrix{Int64}=[1 2;])
     @assert all(size(xs[j],2) >= maximum(dvec) for j=1:length(xs))
     nrows,ncols = size(dvec,1),length(xs)
-    fig = CairoMakie.Figure(backgroundcolor=:white, resolution=(450*ncols,450*nrows+100))
+    addlegend = length(nvec)>2
+    fig = CairoMakie.Figure(backgroundcolor=:white, resolution=(400*ncols,400*nrows+(addlegend ? 100 : 0)))
     ax = NaN
     for i=1:nrows
         for j=1:ncols
@@ -30,7 +31,7 @@ function qmcscatter!(xs::Vector{Matrix{Float64}},nvec::Vector{Int64},dvec::Matri
             qmcscatter!(ax,x,nvec)
         end
     end
-    if length(nvec)>2 fig[nrows+1,:] = CairoMakie.Legend(fig,ax,"Index",framevisible=false,orientation=:horizontal) end
+    if addlegend fig[nrows+1,:] = CairoMakie.Legend(fig,ax,"Index",framevisible=false,orientation=:horizontal) end
     return fig
 end
 
