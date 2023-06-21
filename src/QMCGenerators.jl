@@ -16,7 +16,7 @@ include("latticeseqb2.jl")
 export LatticeSeqB2,RandomShift
 
 include("util.jl")
-export qmcscatter!
+export qmcscatter!,JULIA4LOGOCOLORS
 
 export Next,NextR,Reset!,FirstRLinear,FirstLinear
 
