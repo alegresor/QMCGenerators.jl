@@ -6,7 +6,7 @@ function qmcscatter!(ax::CairoMakie.Axis,x::Matrix{Float64},nvec::Vector{Int64})
     @assert lnvec <= (length(JULIA4LOGOCOLORS)+1)
     for i=1:lnvec-1
         nmin,nmax = i == 1 ? nvec[1] : nvec[i]+1,nvec[i+1]
-        CairoMakie.scatter!(ax,x[nmin:nmax,1],x[nmin:nmax,2],color=JULIA4LOGOCOLORS[i],label="$nmin:$nmax")
+        CairoMakie.scatter!(ax,x[nmin:nmax,1],x[nmin:nmax,2],color=JULIA4LOGOCOLORS[i],label="$nmin:$nmax",markersize=10)
     end
 end
 
@@ -36,7 +36,7 @@ end
 
 qmcscatter!(xs::Vector{Matrix{Float64}},nvec::Int64,args...) = qmcscatter!(xs,[1,nvec],args...)
 
-function qmcscatter!(seq::Union{DigitalSeqB2G,LatticeSeqB2},nvec::Union{Int64,Vector{Int64}},args...)
+function qmcscatter!(seq::Union{IIDU01Seq,DigitalSeqB2G,LatticeSeqB2},nvec::Union{Int64,Vector{Int64}},args...)
     @assert seq.k == -1
     xs = [Next(seq,maximum(nvec))]
     Reset!(seq)

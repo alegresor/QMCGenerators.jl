@@ -7,6 +7,16 @@ readme = replace(readme,"https://alegresor.github.io/QMCGenerators.jl/stable/tut
 readme = replace(readme,"./docs/src"=>".")
 write(joinpath(@__DIR__(),"./src/index.md"),readme)
 
+tutplotdir = joinpath(@__DIR__,"src/assets/tutorial")
+if ~isdir(tutplotdir) mkdir(tutplotdir) end
+
+println("DOCTEST")
+makedocs(
+    doctest = :only,
+    strict = true
+)
+
+println("BUILDING DOCS")
 makedocs(
     sitename = "QMCGenerators.jl",
     modules = [QMCGenerators],
@@ -21,9 +31,10 @@ makedocs(
         #     "Lattice" => "latticeseqb2.md",
         #     "Digital Net" => "digitalseqb2g.md"],
     ],
-    strict = true
+    doctest = false
 )
 
+println("DEPLOY DOCS")
 deploydocs(
     repo = "github.com/alegresor/QMCGenerators.jl.git",
     devbranch = "main",

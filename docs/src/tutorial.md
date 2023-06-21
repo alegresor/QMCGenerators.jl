@@ -1,6 +1,8 @@
 ```@meta
 DocTestSetup = quote
     using QMCGenerators
+    using Random: MersenneTwister
+    using CairoMakie
 end
 ```
 
@@ -129,12 +131,6 @@ Let's reset once more before continuing
 ```jldoctest tut_ds; output = false
 Reset!(ds)
 # output
-5-element Vector{BigInt}:
- 0
- 0
- 0
- 0
- 0
 ```
 
 These functions can also be applied to Lattices 
@@ -161,7 +157,6 @@ Next(ls,4)
 ```jldoctest tut_ls; output = false
 Reset!(ls)
 # output
--1
 ```
 
 ###  Independent Sequence Randomizations
@@ -218,12 +213,6 @@ xs[2]
 ```jldoctest tut_ds; output = false
 Reset!(rds)
 # output
-5-element Vector{BigInt}:
- 0
- 0
- 0
- 0
- 0
 ```
 
 Similarly for Lattices 
@@ -251,7 +240,6 @@ xr[2]
 ```jldoctest tut_ls; output = false
 Reset!(rls)
 # output
--1
 ```
 
 ## Advanced Features
@@ -552,9 +540,139 @@ xbs[2]
  1431335948  2625139201  2281199026   896470325
 ```
 
-
 These may be converted to floats as before. 
 
 
+### IID Standard Uniform Generator
 
+We provide an IID $\mathcal{U}[0,1]^s$ generator with the same API as Lattice and digital sequences. This is a wrapper around [`Random.MersenneTwister`](https://docs.julialang.org/en/v1/stdlib/Random/#Random.MersenneTwister).
 
+For reproducibility, you may provide a seed.
+
+```jldoctest iidu
+iiduseq = IIDU01Seq(3,7)
+Next(iiduseq,4)
+# output
+4×3 Matrix{Float64}:
+ 0.812439   0.654977  0.489613
+ 0.0787595  0.581591  0.258053
+ 0.196465   0.193925  0.842951
+ 0.66193    0.401352  0.635904
+```
+```jldoctest iidu
+Reset!(iiduseq)
+Next(iiduseq,4)
+# output
+4×3 Matrix{Float64}:
+ 0.812439   0.654977  0.489613
+ 0.0787595  0.581591  0.258053
+ 0.196465   0.193925  0.842951
+ 0.66193    0.401352  0.635904
+```
+
+The seed gets used to construct a `MersenneTwister`. After
+
+```julia
+using Random: MersenneTwister
+```
+
+You may pass also pass a `MersenneTwister` instance directly.
+
+```jldoctest iidu
+iiduseq = IIDU01Seq(3,MersenneTwister(7))
+Next(iiduseq,4)
+# output
+4×3 Matrix{Float64}:
+ 0.812439   0.654977  0.489613
+ 0.0787595  0.581591  0.258053
+ 0.196465   0.193925  0.842951
+ 0.66193    0.401352  0.635904
+```
+
+Providing neither a seed nor `MersenneTwister` uses `MersenneTwister()`.
+
+```jldoctest iidu
+iiduseq = IIDU01Seq(3)
+size(Next(iiduseq,4))
+# output
+(4, 3)
+```
+
+## Plotting
+
+To save figures we need to ensure we are
+
+```julia 
+using CairoMakie
+```
+
+We will save plots to 
+
+```jldoctest plots; output = false
+PLOTDIR = joinpath(@__DIR__,"src/assets/tutorial/")
+# output
+"/Users/alegresor/Desktop/QMCGenerators.jl/docs/src/assets/tutorial/"
+```
+
+### Single Projection
+
+```jldoctest plots; output = false
+n = 2^6
+ds = DigitalSeqB2G(3)
+fig = qmcscatter!(ds,n)
+save(joinpath(PLOTDIR,"basic.svg"),fig)
+# output
+CairoMakie.Screen{SVG}
+```
+
+![image](./assets/tutorial/basic.svg)
+
+### Extensibility 
+
+```jldoctest plots; output = false
+nvec = [1,2^6,2^7,2^8]
+fig = qmcscatter!(ds,nvec)
+save(joinpath(PLOTDIR,"extensibility.svg"),fig)
+# output
+CairoMakie.Screen{SVG}
+```
+
+![image](./assets/tutorial/extensibility.svg)
+
+### Multiple Projections
+
+```jldoctest plots; output = false
+dvec = [1 2; 1 3; 2 3]
+fig = qmcscatter!(ds,nvec,dvec)
+save(joinpath(PLOTDIR,"projections.svg"),fig)
+# output
+CairoMakie.Screen{SVG}
+```
+
+![image](./assets/tutorial/projections.svg)
+
+### Multiple Randomizations
+
+```jldoctest plots; output = false
+rds = RandomDigitalShift(DigitalSeqB2G(3),3)
+fig = qmcscatter!(rds,nvec,dvec)
+save(joinpath(PLOTDIR,"randomizations.svg"),fig)
+# output
+CairoMakie.Screen{SVG}
+```
+
+![image](./assets/tutorial/randomizations.svg)
+
+### Comparison of Sequences
+
+```jldoctest plots; output = false
+iid = IIDU01Seq(3)
+rds = RandomDigitalShift(DigitalSeqB2G(3))
+rls = RandomShift(LatticeSeqB2(3))
+fig = qmcscatter!([1,2^6,2^7,2^8],[1 2],iid=iid,rds=rds,rls=rls)
+save(joinpath(PLOTDIR,"seq_comparison.svg"),fig)
+# output
+CairoMakie.Screen{SVG}
+```
+
+![image](./assets/tutorial/seq_comparison.svg)

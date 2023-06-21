@@ -20,7 +20,7 @@ export IIDU01Seq
 
 export Next,NextR,Reset!,FirstRLinear,FirstLinear
 
-include("util.jl")
+include("plots.jl")
 export qmcscatter!,JULIA4LOGOCOLORS
 
 end 

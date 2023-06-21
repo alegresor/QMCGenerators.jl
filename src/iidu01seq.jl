@@ -18,7 +18,10 @@ function Reset!(seq::IIDU01Seq)
     return
 end
 
-Next(seq::IIDU01Seq) = rand(seq.rng,Float64,seq.s)
+function Next(seq::IIDU01Seq)
+    seq.k = seq.k+1
+    seq.x = rand(seq.rng,Float64,seq.s)
+end
 
 function Next(seq::IIDU01Seq,n::Int64)
     x = zeros(Float64,n,seq.s)
