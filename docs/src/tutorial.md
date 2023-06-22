@@ -674,6 +674,13 @@ CairoMakie.Screen{SVG}
 
 ### MC vs QMC
 
+We also need to be 
+
+```julia 
+using Distributions
+using LinearAlgebra
+```
+
 ```jldoctest plots; output = false
 m = 16
 r = 100
