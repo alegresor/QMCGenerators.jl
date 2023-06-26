@@ -10,7 +10,7 @@ See the [Tutorial](https://alegresor.github.io/QMCGenerators.jl/stable/tutorial)
 
 This package implements two flavors of quasi-random sequences: *Lattice* rules and *digital nets*, both in base 2. Independent randomizations may be applied to base sequences via *random shifts for Lattices* and *random digital shifts for digital nets*.  
 
-![image](./docs/src/assets/seq_comparison.svg)
+![image](https://alegresor.github.io/QMCGenerators.jl/dev/assets/seq_comparison.svg)
 
 Notice the gaps and clusters of the above pseudo-random points compared to the more even coverage of quasi-random points. The implemented quasi-random sequences are extensible, meaning you may increase the sample size through powers of two to better fill the space. Above, each plot starts with $2^6$ blue points. Doubling the sample size to $2^7$ adds the green points. Doubling again to $2^8$ samples adds the purple points. 
 
@@ -26,7 +26,7 @@ $$\hat{\mu} = \frac{1}{n} \sum_{i=0}^{n-1} f(X_i)$$
 
 where $X_0,X_1,\dots \sim \mathcal{U}[0,1]^s$. If $X_i$ are chosen to be pseudo-random, then the sample average is a *Simple Monte Carlo* approximation with error $\mathcal{O}(n^{-1/2})$. If instead we choose $X_i$ to be quasi-random then the sample average is a *Quasi-Monte Carlo* approximation with error approaching $\mathcal{O}(n^{-1})$. 
 
-![image](./docs/src/assets/mc_vs_qmc.svg)
+![image](https://alegresor.github.io/QMCGenerators.jl/dev/assets/mc_vs_qmc.svg)
 
 The above example approximates $\mu = \mathbb{E}[g(T)]$ where $g: \mathbb{R}^s \to \mathbb{R}$ is the [Keister function](https://pubs.aip.org/aip/cip/article-abstract/10/2/119/136436/Multidimensional-Quadrature-Algorithms?redirectedFrom=PDF)
 
