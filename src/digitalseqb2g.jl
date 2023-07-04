@@ -79,16 +79,16 @@ mutable struct RandomDigitalShift
     recipd::Union{BigFloat,Float64} # multiplication factor
 end 
 
-function RandomDigitalShift(seq::DigitalSeqB2G,r::Int64,rng::MersenneTwister)
+function RandomDigitalShift(seq::DigitalSeqB2G,r::Int64,rng::Xoshiro)
     t = max(seq.t,53)
     recipd = t>53 ? BigFloat(2)^(-t) : Float64(2)^(-t)
     rshifts = rand(rng,0:(BigInt(2)^t-1),r,seq.s)
     RandomDigitalShift("Digital Seq B2 + Random Shift",seq,r,rshifts,t,t-seq.t,recipd)
 end
 
-RandomDigitalShift(seq::DigitalSeqB2G,r::Int64,seed::Int64) = RandomDigitalShift(seq,r,MersenneTwister(seed))
+RandomDigitalShift(seq::DigitalSeqB2G,r::Int64,seed::Int64) = RandomDigitalShift(seq,r,Xoshiro(seed))
 
-RandomDigitalShift(seq::DigitalSeqB2G,r::Int64) = RandomDigitalShift(seq,r,MersenneTwister())
+RandomDigitalShift(seq::DigitalSeqB2G,r::Int64) = RandomDigitalShift(seq,r,Xoshiro())
 
 RandomDigitalShift(seq::DigitalSeqB2G) = RandomDigitalShift(seq,1)
 

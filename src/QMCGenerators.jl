@@ -1,7 +1,7 @@
 module QMCGenerators
 
 import DelimitedFiles: readdlm
-import Random: MersenneTwister,seed!
+import Random: Xoshiro,MersenneTwister,seed!
 import CairoMakie
 using LaTeXStrings
 
