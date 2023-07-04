@@ -10,7 +10,7 @@ mutable struct LatticeSeqB2
 end
 
 function LatticeSeqB2(s::Int64,z::Vector{BigInt},m::Int64)
-    @assert m>0
+    @assert m > 0 && s <= length(z)
     n = 2^m 
     scale = m>53 ? BigFloat(2)^(-m) : Float64(2)^(-m)
     k = -1

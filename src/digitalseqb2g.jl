@@ -12,6 +12,7 @@ mutable struct DigitalSeqB2G
 end
 
 function DigitalSeqB2G(s::Int64,Cs::Matrix{BigInt})
+    @assert s <= size(Cs,1)
     m = size(Cs,2)
     t = maximum(ndigits.(Cs[1,:],base=2))
     Csr = bitreverse.(Cs[1:s,:],t)
@@ -73,9 +74,17 @@ mutable struct RandomDigitalShift
     seq::DigitalSeqB2G
     r::Int64
     rshifts::Matrix{BigInt}
+    t::Int64 # number of bits in shifted integers
+    tdiff::Int64
+    recipd::Union{BigFloat,Float64} # multiplication factor
 end 
 
-RandomDigitalShift(seq::DigitalSeqB2G,r::Int64,rng::MersenneTwister) = RandomDigitalShift("Digital Seq B2 + Random Shift",seq,r,rand(rng,0:(BigInt(2)^seq.t-1),r,seq.s))
+function RandomDigitalShift(seq::DigitalSeqB2G,r::Int64,rng::MersenneTwister)
+    t = max(seq.t,53)
+    recipd = t>53 ? BigFloat(2)^(-t) : Float64(2)^(-t)
+    rshifts = rand(rng,0:(BigInt(2)^t-1),r,seq.s)
+    RandomDigitalShift("Digital Seq B2 + Random Shift",seq,r,rshifts,t,t-seq.t,recipd)
+end
 
 RandomDigitalShift(seq::DigitalSeqB2G,r::Int64,seed::Int64) = RandomDigitalShift(seq,r,MersenneTwister(seed))
 
@@ -89,7 +98,7 @@ end
 
 DigitalShifts(xb,rds) = [rds.rshifts[i,:]' .⊻ xb for i=1:rds.r]
 
-NextRBinary(rds::RandomDigitalShift,n::Int64) = DigitalShifts(NextBinary(rds.seq,n),rds)
+NextRBinary(rds::RandomDigitalShift,n::Int64) = DigitalShifts(NextBinary(rds.seq,n).<<rds.tdiff,rds)
 
 NextRBinary(rds::RandomDigitalShift) = NextRBinary(rds,1)
 
@@ -100,9 +109,9 @@ end
 
 NextBinary(rds::RandomDigitalShift) = NextBinary(rds,1)
 
-BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},rds::RandomDigitalShift) = BinaryToFloat64(xb,rds.seq)
+BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},rds::RandomDigitalShift) = convert.(Float64,rds.recipd*xb) # consolidate
 
-BinaryToFloat64(xbs::Vector{Matrix{BigInt}},rds::RandomDigitalShift) = [BinaryToFloat64(xb,rds) for xb in xbs]
+BinaryToFloat64(xbs::Vector{Matrix{BigInt}},rds::RandomDigitalShift) = [BinaryToFloat64(xb,rds) for xb in xbs] # consolidate
 
 NextR(rds::RandomDigitalShift,n::Int64) = BinaryToFloat64(NextRBinary(rds,n),rds)
 
@@ -115,7 +124,7 @@ end
 
 Next(rds::RandomDigitalShift) = Next(rds,1)
 
-FirstRLinearBinary(rds::RandomDigitalShift,m::Int64) = DigitalShifts(FirstLinearBinary(rds.seq,m),rds)
+FirstRLinearBinary(rds::RandomDigitalShift,m::Int64) = DigitalShifts(FirstLinearBinary(rds.seq,m).<<rds.tdiff,rds)
 
 function FirstLinearBinary(rds::RandomDigitalShift,m::Int64)
     rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
@@ -127,4 +136,4 @@ FirstRLinear(rds::RandomDigitalShift,m::Int64) = BinaryToFloat64(FirstRLinearBin
 function FirstLinear(rds::RandomDigitalShift,m::Int64)
     rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
     FirstRLinear(rds,m)[1]
-end 
+end
