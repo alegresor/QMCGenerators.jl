@@ -143,7 +143,7 @@ mutable struct RandomOwenScramble
     seq::DigitalSeqB2G
     r::Int64
     rngs::Matrix{Xoshiro}
-    scrambles::Matrix{Dict{Union{Bool,Char},Union{Bool,Dict}}}
+    scrambles::Matrix{IdDict{Union{Bool,Char},Union{Bool,IdDict}}}
     t::Int64 # number of bits in shifted integers
     tdiff::Int64
     recipd::Union{BigFloat,Float64} # multiplication factor
@@ -152,7 +152,7 @@ end
 function RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,rngs::Matrix{Xoshiro})
     t = max(53,seq.t)
     recipd = t>53 ? BigFloat(2)^(-t) : Float64(2)^(-t)
-    scrambles = [Dict() for i=1:r,j=1:seq.s]
+    scrambles = [IdDict() for i=1:r,j=1:seq.s]
     RandomOwenScramble("Digital Seq B2 + Random Shift",seq,r,rngs,scrambles,t,t-seq.t,recipd)
 end
 
@@ -181,7 +181,7 @@ function OwenScramble(rds::RandomOwenScramble,xb::Matrix{BigInt},n::Int64)
                 scramble = rds.scrambles[l,j]
                 for t=rds.seq.t-1:-1:0
                     b = Bool(xbij>>t&1)
-                    if ~haskey(scramble,b) scramble[b] = Dict{Union{Bool,Char},Union{Bool,Dict}}('β'=>rand(rng,Bool)) end
+                    get!(scramble,b,IdDict{Union{Bool,Char},Union{Bool,IdDict}}('β'=>rand(rng,Bool)))
                     scramble = scramble[b]
                     xbijr += BigInt(b ⊻ scramble['β'])<<(t+rds.tdiff)
                 end
