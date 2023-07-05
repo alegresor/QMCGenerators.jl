@@ -96,7 +96,7 @@ function Reset!(rds::RandomDigitalShift)
     Reset!(rds.seq)
 end
 
-DigitalShifts(xb,rds) = [rds.rshifts[i,:]' .⊻ xb for i=1:rds.r]
+DigitalShifts(xb::Matrix{BigInt},rds::RandomDigitalShift) = [rds.rshifts[i,:]' .⊻ xb for i=1:rds.r]
 
 NextRBinary(rds::RandomDigitalShift,n::Int64) = DigitalShifts(NextBinary(rds.seq,n).<<rds.tdiff,rds)
 
@@ -137,3 +137,84 @@ function FirstLinear(rds::RandomDigitalShift,m::Int64)
     rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
     FirstRLinear(rds,m)[1]
 end
+
+mutable struct RandomOwenScramble
+    name::String
+    seq::DigitalSeqB2G
+    r::Int64
+    rngs::Matrix{Xoshiro}
+    scrambles::Matrix{Dict{Union{Bool,Char},Union{Bool,Dict}}}
+    t::Int64 # number of bits in shifted integers
+    tdiff::Int64
+    recipd::Union{BigFloat,Float64} # multiplication factor
+end
+
+function RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,rngs::Matrix{Xoshiro})
+    t = max(53,seq.t)
+    recipd = t>53 ? BigFloat(2)^(-t) : Float64(2)^(-t)
+    scrambles = [Dict() for i=1:r,j=1:seq.s]
+    RandomOwenScramble("Digital Seq B2 + Random Shift",seq,r,rngs,scrambles,t,t-seq.t,recipd)
+end
+
+RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,seed::Int64) = RandomOwenScramble(seq,r,[Xoshiro(seed+i*seq.s+j) for i=0:r-1,j=0:seq.s-1]) # no ideal, but how to spawn independent RNG streams? 
+
+RandomOwenScramble(seq::DigitalSeqB2G,r::Int64) = RandomOwenScramble(seq,r,[Xoshiro() for i=0:r-1,j=0:seq.s-1]) # ideally use independent streams
+
+RandomOwenScramble(seq::DigitalSeqB2G) = RandomOwenScramble(seq,1)
+
+BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},rds::RandomOwenScramble) = convert.(Float64,rds.recipd*xb) # consolidate
+
+BinaryToFloat64(xbs::Vector{Matrix{BigInt}},rds::RandomOwenScramble) = [BinaryToFloat64(xb,rds) for xb in xbs] # consolidate
+
+function Reset!(rds::RandomOwenScramble) 
+    Reset!(rds.seq)
+end
+
+function OwenScramble(rds::RandomOwenScramble,xb::Matrix{BigInt},n::Int64)
+    xrbs = [zeros(BigInt,n,rds.seq.s) for j=1:rds.r]
+    for i=1:n
+        for l=1:rds.r
+            for j=1:rds.seq.s
+                xbij = xb[i,j]
+                xbijr = BigInt(0)
+                rng = rds.rngs[l,j]
+                scramble = rds.scrambles[l,j]
+                for t=rds.seq.t-1:-1:0
+                    b = Bool(xbij>>t&1)
+                    if ~haskey(scramble,b) scramble[b] = Dict{Union{Bool,Char},Union{Bool,Dict}}('β'=>rand(rng,Bool)) end
+                    scramble = scramble[b]
+                    xbijr += BigInt(b ⊻ scramble['β'])<<(t+rds.tdiff)
+                end
+                xrbs[l][i,j] = xbijr ⊻ rand(rng,0:(BigInt(2)^rds.tdiff-1)) # remaining bits are always unique
+            end
+        end 
+    end
+    xrbs
+end 
+
+NextR(rds::RandomOwenScramble,n::Int64) = BinaryToFloat64(OwenScramble(rds,NextBinary(rds.seq,n),n),rds)
+
+NextR(rds::RandomOwenScramble) = NextR(rds,1)
+
+function Next(rds::RandomOwenScramble,n)
+    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
+    NextR(rds,n)[1]
+end
+
+Next(rds::RandomOwenScramble) = Next(rds,1)
+
+FirstRLinearBinary(rds::RandomOwenScramble,m::Int64) = BinaryToFloat64(OwenScramble(rds,FirstLinearBinary(rds.seq,m),2^m),rds)
+
+function FirstLinearBinary(rds::RandomOwenScramble,m::Int64)
+    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
+    FirstRLinearBinary(rds,m)[1]
+end 
+
+FirstRLinear(rds::RandomOwenScramble,m::Int64) = BinaryToFloat64(FirstRLinearBinary(rds,m),rds)
+
+function FirstLinear(rds::RandomOwenScramble,m::Int64)
+    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
+    FirstRLinear(rds,m)[1]
+end
+
+# consolidate repeated functions
