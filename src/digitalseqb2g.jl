@@ -139,11 +139,10 @@ function FirstLinear(rds::RandomDigitalShift,m::Int64)
 end
 
 mutable struct BTree
-    b::Bool
+    const b::Bool
     left::Union{Nothing,BTree}
     right::Union{Nothing,BTree}
 end
-
 BTree(b::Bool) = BTree(b,nothing,nothing)
 
 mutable struct RandomOwenScramble
@@ -189,9 +188,17 @@ function OwenScramble(rds::RandomOwenScramble,xb::Matrix{BigInt},n::Int64)
                 scramble = rds.scrambles[l,j]
                 for t=rds.seq.t-1:-1:0
                     b = Bool(xbij>>t&1)
-                    if ~b && scramble.left === nothing  scramble.left = BTree(rand(rng,Bool)) end 
-                    if b && scramble.right === nothing scramble.right = BTree(rand(rng,Bool)) end 
-                    scramble = ~b ? scramble.left : scramble.right
+                    if ~b
+                        if scramble.left === nothing  
+                            scramble.left = BTree(rand(rng,Bool))
+                        end
+                        scramble = scramble.left 
+                    else # b
+                        if scramble.right === nothing 
+                            scramble.right = BTree(rand(rng,Bool))
+                        end 
+                        scramble = scramble.right
+                    end  
                     xbijr ⊻= BigInt(b ⊻ scramble.b)<<(t+rds.tdiff)
                 end
                 xrbs[l][i,j] = xbijr ⊻ rand(rng,0:(BigInt(2)^rds.tdiff-1)) # remaining bits are always unique
