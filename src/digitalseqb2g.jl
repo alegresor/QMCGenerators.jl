@@ -138,12 +138,20 @@ function FirstLinear(rds::RandomDigitalShift,m::Int64)
     FirstRLinear(rds,m)[1]
 end
 
+mutable struct BTree
+    b::Bool
+    left::Union{Nothing,BTree}
+    right::Union{Nothing,BTree}
+end
+
+BTree(b::Bool) = BTree(b,nothing,nothing)
+
 mutable struct RandomOwenScramble
     name::String
     seq::DigitalSeqB2G
     r::Int64
     rngs::Matrix{Xoshiro}
-    scrambles::Matrix{IdDict{Union{Bool,Char},Union{Bool,IdDict}}}
+    scrambles::Matrix{BTree}
     t::Int64 # number of bits in shifted integers
     tdiff::Int64
     recipd::Union{BigFloat,Float64} # multiplication factor
@@ -152,7 +160,7 @@ end
 function RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,rngs::Matrix{Xoshiro})
     t = max(53,seq.t)
     recipd = t>53 ? BigFloat(2)^(-t) : Float64(2)^(-t)
-    scrambles = [IdDict() for i=1:r,j=1:seq.s]
+    scrambles = [BTree(true) for i=1:r,j=1:seq.s]
     RandomOwenScramble("Digital Seq B2 + Random Shift",seq,r,rngs,scrambles,t,t-seq.t,recipd)
 end
 
@@ -168,7 +176,7 @@ BinaryToFloat64(xbs::Vector{Matrix{BigInt}},rds::RandomOwenScramble) = [BinaryTo
 
 function Reset!(rds::RandomOwenScramble) 
     Reset!(rds.seq)
-end
+end 
 
 function OwenScramble(rds::RandomOwenScramble,xb::Matrix{BigInt},n::Int64)
     xrbs = [zeros(BigInt,n,rds.seq.s) for j=1:rds.r]
@@ -181,9 +189,10 @@ function OwenScramble(rds::RandomOwenScramble,xb::Matrix{BigInt},n::Int64)
                 scramble = rds.scrambles[l,j]
                 for t=rds.seq.t-1:-1:0
                     b = Bool(xbij>>t&1)
-                    get!(scramble,b,IdDict{Union{Bool,Char},Union{Bool,IdDict}}('β'=>rand(rng,Bool)))
-                    scramble = scramble[b]
-                    xbijr += BigInt(b ⊻ scramble['β'])<<(t+rds.tdiff)
+                    if ~b && scramble.left === nothing  scramble.left = BTree(rand(rng,Bool)) end 
+                    if b && scramble.right === nothing scramble.right = BTree(rand(rng,Bool)) end 
+                    scramble = ~b ? scramble.left : scramble.right
+                    xbijr ⊻= BigInt(b ⊻ scramble.b)<<(t+rds.tdiff)
                 end
                 xrbs[l][i,j] = xbijr ⊻ rand(rng,0:(BigInt(2)^rds.tdiff-1)) # remaining bits are always unique
             end
