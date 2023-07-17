@@ -139,11 +139,15 @@ function FirstLinear(rds::RandomDigitalShift,m::Int64)
 end
 
 mutable struct BTree
-    const b::Bool
+    rbits::Union{Bool,BigInt}
+    ubits::Union{Nothing,BigInt} 
     left::Union{Nothing,BTree}
     right::Union{Nothing,BTree}
 end
-BTree(b::Bool) = BTree(b,nothing,nothing)
+BTree(rbits::Bool) = BTree(rbits,nothing,nothing,nothing) # terminal node
+BTree(rbits::Bool,left::BTree,na::Nothing) = BTree(rbits,nothing,left,na) # node with left neighbor
+BTree(rbits::Bool,na::Nothing,right::BTree) = BTree(rbits,nothing,na,right) # node with right neighbor
+BTree(rbits::BigInt,ubits::BigInt) = BTree(rbits,ubits,nothing,nothing) # data node 
 
 mutable struct RandomOwenScramble
     name::String
@@ -175,33 +179,33 @@ BinaryToFloat64(xbs::Vector{Matrix{BigInt}},rds::RandomOwenScramble) = [BinaryTo
 
 function Reset!(rds::RandomOwenScramble) 
     Reset!(rds.seq)
-end 
+end
+
+function OwenScrambleScalar(xbij::BigInt,xbijr::BigInt,t::Int64,tdiff::Int64,scramble::BTree,rng::Xoshiro)
+    for tval=t-1:-1:0
+        b = Bool(xbij>>tval&1)
+        if ~b
+            if scramble.left === nothing  
+                scramble.left = BTree(rand(rng,Bool))
+            end
+            scramble = scramble.left 
+        else # b
+            if scramble.right === nothing 
+                scramble.right = BTree(rand(rng,Bool))
+            end 
+            scramble = scramble.right
+        end  
+        xbijr ⊻= BigInt(b ⊻ scramble.rbits)<<(tval+tdiff)
+    end
+    xbijr ⊻ rand(rng,0:(BigInt(2)^tdiff-1)) # remaining bits are always unique
+end
 
 function OwenScramble(rds::RandomOwenScramble,xb::Matrix{BigInt},n::Int64)
     xrbs = [zeros(BigInt,n,rds.seq.s) for j=1:rds.r]
     for i=1:n
         for l=1:rds.r
             for j=1:rds.seq.s
-                xbij = xb[i,j]
-                xbijr = BigInt(0)
-                rng = rds.rngs[l,j]
-                scramble = rds.scrambles[l,j]
-                for t=rds.seq.t-1:-1:0
-                    b = Bool(xbij>>t&1)
-                    if ~b
-                        if scramble.left === nothing  
-                            scramble.left = BTree(rand(rng,Bool))
-                        end
-                        scramble = scramble.left 
-                    else # b
-                        if scramble.right === nothing 
-                            scramble.right = BTree(rand(rng,Bool))
-                        end 
-                        scramble = scramble.right
-                    end  
-                    xbijr ⊻= BigInt(b ⊻ scramble.b)<<(t+rds.tdiff)
-                end
-                xrbs[l][i,j] = xbijr ⊻ rand(rng,0:(BigInt(2)^rds.tdiff-1)) # remaining bits are always unique
+                xrbs[l][i,j] = OwenScrambleScalar(xb[i,j],BigInt(0),rds.seq.t,rds.tdiff,rds.scrambles[l,j],rds.rngs[l,j])
             end
         end 
     end
