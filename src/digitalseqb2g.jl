@@ -139,15 +139,14 @@ function FirstLinear(rds::RandomDigitalShift,m::Int64)
 end
 
 mutable struct BTree
-    rbits::Union{Bool,BigInt}
-    ubits::Union{Nothing,BigInt} 
+    rbits::Union{Nothing,BigInt,Bool}
+    xb::Union{Nothing,BigInt}
     left::Union{Nothing,BTree}
     right::Union{Nothing,BTree}
 end
-BTree(rbits::Bool) = BTree(rbits,nothing,nothing,nothing) # terminal node
-BTree(rbits::Bool,left::BTree,na::Nothing) = BTree(rbits,nothing,left,na) # node with left neighbor
-BTree(rbits::Bool,na::Nothing,right::BTree) = BTree(rbits,nothing,na,right) # node with right neighbor
-BTree(rbits::BigInt,ubits::BigInt) = BTree(rbits,ubits,nothing,nothing) # data node 
+BTree(left::BTree,right::BTree) = BTree(nothing,nothing,left,right) # only for root node
+BTree(rbits::BigInt,xb::BigInt) = BTree(rbits,xb,nothing,nothing)
+BTree(rbits::Bool) = BTree(rbits,nothing,nothing,nothing)
 
 mutable struct RandomOwenScramble
     name::String
@@ -161,9 +160,16 @@ mutable struct RandomOwenScramble
 end
 
 function RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,rngs::Matrix{Xoshiro})
-    t = max(53,seq.t)
+    t = max(5,seq.t) # FIXXXXX max(53,seq.t)
     recipd = t>53 ? BigFloat(2)^(-t) : Float64(2)^(-t)
-    scrambles = [BTree(true) for i=1:r,j=1:seq.s]
+    scrambles = Matrix{BTree}(undef,r,seq.s)
+    for i=1:r 
+        for j=1:seq.s 
+            r1 = rand(rngs[i,j],Bool)<<(t-1)
+            rbitsleft,rbitsright = r1 + rand(rngs[i,j],0:(BigInt(2)^(t-1)-1)),r1 + rand(rngs[i,j],0:(BigInt(2)^(t-1)-1))
+            scrambles[i,j] = BTree(BTree(rbitsleft,BigInt(0)),BTree(rbitsright,BigInt(2)^(t-1)))
+        end 
+    end 
     RandomOwenScramble("Digital Seq B2 + Random Shift",seq,r,rngs,scrambles,t,t-seq.t,recipd)
 end
 
@@ -173,31 +179,30 @@ RandomOwenScramble(seq::DigitalSeqB2G,r::Int64) = RandomOwenScramble(seq,r,[Xosh
 
 RandomOwenScramble(seq::DigitalSeqB2G) = RandomOwenScramble(seq,1)
 
-BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},rds::RandomOwenScramble) = convert.(Float64,rds.recipd*xb) # consolidate
-
-BinaryToFloat64(xbs::Vector{Matrix{BigInt}},rds::RandomOwenScramble) = [BinaryToFloat64(xb,rds) for xb in xbs] # consolidate
-
 function Reset!(rds::RandomOwenScramble) 
     Reset!(rds.seq)
 end
 
-function OwenScrambleScalar(xbij::BigInt,xbijr::BigInt,t::Int64,tdiff::Int64,scramble::BTree,rng::Xoshiro)
-    for tval=t-1:-1:0
-        b = Bool(xbij>>tval&1)
-        if ~b
-            if scramble.left === nothing  
-                scramble.left = BTree(rand(rng,Bool))
-            end
-            scramble = scramble.left 
-        else # b
-            if scramble.right === nothing 
-                scramble.right = BTree(rand(rng,Bool))
-            end 
-            scramble = scramble.right
-        end  
-        xbijr ⊻= BigInt(b ⊻ scramble.rbits)<<(tval+tdiff)
+function GetScrambleScalar(xb::BigInt,k::Int64,t::Int64,scramble::BTree,rng::Xoshiro)
+    b = Bool((xb>>(t-k-1))&1)
+    onesmask = BigInt(2)^(t-k)-1
+    if scramble.xb === nothing # branch node, typeof(scramble.ubits) == Bool
+        r1 = BigInt(scramble.rbits)<<(t-k)
+        return  r1 + GetScrambleScalar(xb&onesmask,k+1,t,scramble,rng)
+    elseif scramble.xb != xb # unseen leaf node
+        ubit,rbit = nothing,nothing
+        while true
+            ubit = Bool((scramble.ubits>>(t-k))&1)
+            if ~(ubit === b) break end
+            rbit == Bool((scramble.rbits>>(t-k))&1)
+            scramble = ~b ? scramble.left = BTree(rbit) : scramble.right = BTree(rbit)
+            k += 1
+            b = Bool((xb>>(t-k-1))&1)
+        end
+        # TODO
+    else # scramble.xb == xb
+        return scramble.rbits # seen leaf node 
     end
-    xbijr ⊻ rand(rng,0:(BigInt(2)^tdiff-1)) # remaining bits are always unique
 end
 
 function OwenScramble(rds::RandomOwenScramble,xb::Matrix{BigInt},n::Int64)
@@ -205,14 +210,32 @@ function OwenScramble(rds::RandomOwenScramble,xb::Matrix{BigInt},n::Int64)
     for i=1:n
         for l=1:rds.r
             for j=1:rds.seq.s
-                xrbs[l][i,j] = OwenScrambleScalar(xb[i,j],BigInt(0),rds.seq.t,rds.tdiff,rds.scrambles[l,j],rds.rngs[l,j])
+                xbij = xb[i,j]<<rds.tdiff
+                b = Bool(xbij>>(rds.t-1)&1)
+                scramble = ~b ? rds.scrambles[l,j].left : rds.scrambles[l,j].right
+                xrbs[l][i,j] = xbij ⊻ GetScrambleScalar(xbij,1,rds.t,scramble,rds.rngs[l,j])
             end
         end 
     end
     xrbs
 end 
 
-NextR(rds::RandomOwenScramble,n::Int64) = BinaryToFloat64(OwenScramble(rds,NextBinary(rds.seq,n),n),rds)
+NextRBinary(rds::RandomOwenScramble,n::Int64) = OwenScramble(rds,NextBinary(rds.seq,n),n)
+
+NextRBinary(rds::RandomOwenScramble) = NextRBinary(rds,1)
+
+function NextBinary(rds::RandomOwenScramble,n::Int64)
+    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
+    NextRBinary(rds,n)[1]
+end
+
+NextBinary(rds::RandomOwenScramble) = NextBinary(rds,1)
+
+BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},rds::RandomOwenScramble) = convert.(Float64,rds.recipd*xb) # consolidate
+
+BinaryToFloat64(xbs::Vector{Matrix{BigInt}},rds::RandomOwenScramble) = [BinaryToFloat64(xb,rds) for xb in xbs] # consolidate
+
+NextR(rds::RandomOwenScramble,n::Int64) = BinaryToFloat64(NextRBinary(rds,n),rds)
 
 NextR(rds::RandomOwenScramble) = NextR(rds,1)
 
