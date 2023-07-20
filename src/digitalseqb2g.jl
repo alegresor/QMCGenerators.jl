@@ -147,6 +147,7 @@ end
 BTree(left::BTree,right::BTree) = BTree(nothing,nothing,left,right) # only for root node
 BTree(rbits::BigInt,xb::BigInt) = BTree(rbits,xb,nothing,nothing)
 BTree(rbits::Bool) = BTree(rbits,nothing,nothing,nothing)
+BTree() = BTree(nothing,nothing,nothing,nothing)
 
 mutable struct RandomOwenScramble
     name::String
@@ -184,22 +185,27 @@ function Reset!(rds::RandomOwenScramble)
 end
 
 function GetScrambleScalar(xb::BigInt,k::Int64,t::Int64,scramble::BTree,rng::Xoshiro)
-    b = Bool((xb>>(t-k-1))&1)
-    onesmask = BigInt(2)^(t-k)-1
-    if scramble.xb === nothing # branch node, typeof(scramble.ubits) == Bool
+    if scramble.xb === nothing # branch node, typeof(scramble.rbits) == Bool
         r1 = BigInt(scramble.rbits)<<(t-k)
-        return  r1 + GetScrambleScalar(xb&onesmask,k+1,t,scramble,rng)
+        return  r1 + GetScrambleScalar(xb&(BigInt(2)^(t-k)-1),k+1,t,scramble,rng)
     elseif scramble.xb != xb # unseen leaf node
-        ubit,rbit = nothing,nothing
+        ogsrbits,orsxb = scramble.rbits,scramble.xb
+        b,ubit = nothing,nothing
+        rmask = BigInt(2)^(t-k+1)-1
         while true
-            ubit = Bool((scramble.ubits>>(t-k))&1)
+            b,ubit,rbit = Bool((xb>>(t-k))&1),Bool((orsxb>>(t-k))&1),Bool((ogsrbits>>(t-k))&1)
+            scramble.rbits,scramble.xb = rbit,nothing
             if ~(ubit === b) break end
-            rbit == Bool((scramble.rbits>>(t-k))&1)
-            scramble = ~b ? scramble.left = BTree(rbit) : scramble.right = BTree(rbit)
+            scramble = ~b ? scramble.left = BTree() : scramble.right = BTree()
             k += 1
-            b = Bool((xb>>(t-k-1))&1)
         end
-        # TODO
+        # TODO: add rbit to terminal node 
+        onesmask = BigInt(2)^(t-k)-1
+        newrbits = rand(rng,0:onesmask)
+        scramble.left = ~b ? BTree(newrbits,xb&onesmask) : BTree(ogsrbits&onesmask,orsxb&onesmask)
+        scramble.right = b ? BTree(newrbits,xb&onesmask) : BTree(ogsrbits&onesmask,orsxb&onesmask)
+        rmask ⊻= onesmask
+        return (scramble.rbits&rmask) + newrbits
     else # scramble.xb == xb
         return scramble.rbits # seen leaf node 
     end
