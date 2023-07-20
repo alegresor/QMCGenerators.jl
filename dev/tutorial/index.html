@@ -10,8 +10,8 @@
 4×3 Matrix{Float64}:
  0.243795  0.719182  0.810814
  0.743795  0.219182  0.310814
- 0.493795  0.469182  0.560814
- 0.993795  0.969182  0.0608139</code></pre><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>While not strictly enforced, sample sizes should be powers of two to achieve full coverage of <span>$[0,1]^s$</span></p></div></div><p>In the following sections we always supply a seed for reproducibility. Supplying a seed requires you also supply the number of randomizations as done above. However, if you do not wish to seed, you can simply supply the number of randomizations. </p><pre><code class="language-julia hljs">rls = RandomDigitalShift(DigitalSeqB2G(12),2)
+ 0.493795  0.969182  0.0608139
+ 0.993795  0.469182  0.560814</code></pre><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>While not strictly enforced, sample sizes should be powers of two to achieve full coverage of <span>$[0,1]^s$</span></p></div></div><p>In the following sections we always supply a seed for reproducibility. Supplying a seed requires you also supply the number of randomizations as done above. However, if you do not wish to seed, you can simply supply the number of randomizations. </p><pre><code class="language-julia hljs">rls = RandomDigitalShift(DigitalSeqB2G(12),2)
 xs = NextR(rls,2^7)
 size(xs)
 # output
@@ -48,14 +48,14 @@ Next(ls,4)
 4×5 Matrix{Float64}:
  0.0   0.0   0.0   0.0   0.0
  0.5   0.5   0.5   0.5   0.5
- 0.25  0.75  0.75  0.25  0.25
- 0.75  0.25  0.25  0.75  0.75</code></pre><pre><code class="language-julia hljs">Next(ls,4)
+ 0.25  0.25  0.25  0.25  0.25
+ 0.75  0.75  0.75  0.75  0.75</code></pre><pre><code class="language-julia hljs">Next(ls,4)
 # output
 4×5 Matrix{Float64}:
- 0.125  0.375  0.375  0.125  0.125
- 0.625  0.875  0.875  0.625  0.625
- 0.375  0.125  0.125  0.375  0.375
- 0.875  0.625  0.625  0.875  0.875</code></pre><pre><code class="language-julia hljs">Reset!(ls)
+ 0.125  0.625  0.125  0.625  0.625
+ 0.625  0.125  0.625  0.125  0.125
+ 0.375  0.875  0.375  0.875  0.875
+ 0.875  0.375  0.875  0.375  0.375</code></pre><pre><code class="language-julia hljs">Reset!(ls)
 # output</code></pre><h3 id="Independent-Sequence-Randomizations"><a class="docs-heading-anchor" href="#Independent-Sequence-Randomizations">Independent Sequence Randomizations</a><a id="Independent-Sequence-Randomizations-1"></a><a class="docs-heading-anchor-permalink" href="#Independent-Sequence-Randomizations" title="Permalink"></a></h3><p>Getting a single randomization was shown in the <a href="#Common-Usage">Common Usage</a> section. Support is also available for multiple independent randomizations. For instance, we can generating 2 independent randomizations with seed 11 and get the next 4 points in each sequence via  </p><pre><code class="language-julia hljs">rds = RandomDigitalShift(ds,2,11)
 xs = NextR(rds,4)
 typeof(xs)
@@ -93,14 +93,14 @@ xr[1]
 4×5 Matrix{Float64}:
  0.498434  0.26454    0.676602  0.46979  0.677608
  0.998434  0.76454    0.176602  0.96979  0.177608
- 0.748434  0.0145404  0.426602  0.71979  0.927608
- 0.248434  0.51454    0.926602  0.21979  0.427608</code></pre><pre><code class="language-julia hljs">xr[2]
+ 0.748434  0.51454    0.926602  0.71979  0.927608
+ 0.248434  0.0145404  0.426602  0.21979  0.427608</code></pre><pre><code class="language-julia hljs">xr[2]
 # output
 4×5 Matrix{Float64}:
  0.389721  0.719424  0.184079  0.568002   0.105514
  0.889721  0.219424  0.684079  0.0680019  0.605514
- 0.639721  0.469424  0.934079  0.818002   0.355514
- 0.139721  0.969424  0.434079  0.318002   0.855514</code></pre><pre><code class="language-julia hljs">Reset!(rls)
+ 0.639721  0.969424  0.434079  0.818002   0.355514
+ 0.139721  0.469424  0.934079  0.318002   0.855514</code></pre><pre><code class="language-julia hljs">Reset!(rls)
 # output</code></pre><h2 id="Advanced-Features"><a class="docs-heading-anchor" href="#Advanced-Features">Advanced Features</a><a id="Advanced-Features-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Features" title="Permalink"></a></h2><h3 id="Alternative-Generating-Matrices-and-Vectors"><a class="docs-heading-anchor" href="#Alternative-Generating-Matrices-and-Vectors">Alternative Generating Matrices and Vectors</a><a id="Alternative-Generating-Matrices-and-Vectors-1"></a><a class="docs-heading-anchor-permalink" href="#Alternative-Generating-Matrices-and-Vectors" title="Permalink"></a></h3><h4 id="Pregenerated"><a class="docs-heading-anchor" href="#Pregenerated">Pregenerated</a><a id="Pregenerated-1"></a><a class="docs-heading-anchor-permalink" href="#Pregenerated" title="Permalink"></a></h4><p>We include many alternative generating matrices for digital sequences in <a href="https://bitbucket.org/dnuyens/qmc-generators/src/master/DIGSEQ/">this directory</a>. To use an alternative, simply supply the relative path </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(3,&quot;sobolmats/sobol_alpha2_Bs64.col&quot;)
 Next(ds,4)
 # output
@@ -169,23 +169,23 @@ FirstLinear(ls,m)
 # output
 8×4 Matrix{Float64}:
  0.0    0.0    0.0    0.0
- 0.125  0.375  0.375  0.125
- 0.25   0.75   0.75   0.25
- 0.375  0.125  0.125  0.375
+ 0.125  0.625  0.125  0.625
+ 0.25   0.25   0.25   0.25
+ 0.375  0.875  0.375  0.875
  0.5    0.5    0.5    0.5
- 0.625  0.875  0.875  0.625
- 0.75   0.25   0.25   0.75
- 0.875  0.625  0.625  0.875</code></pre><p>Compare to the original ordering </p><pre><code class="language-julia hljs">Next(ls,n)
+ 0.625  0.125  0.625  0.125
+ 0.75   0.75   0.75   0.75
+ 0.875  0.375  0.875  0.375</code></pre><p>Compare to the original ordering </p><pre><code class="language-julia hljs">Next(ls,n)
 # output
 8×4 Matrix{Float64}:
  0.0    0.0    0.0    0.0
  0.5    0.5    0.5    0.5
- 0.25   0.75   0.75   0.25
- 0.75   0.25   0.25   0.75
- 0.125  0.375  0.375  0.125
- 0.625  0.875  0.875  0.625
- 0.375  0.125  0.125  0.375
- 0.875  0.625  0.625  0.875</code></pre><p>Linear order for randomized sequences has expected syntax </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(4)
+ 0.25   0.25   0.25   0.25
+ 0.75   0.75   0.75   0.75
+ 0.125  0.625  0.125  0.625
+ 0.625  0.125  0.625  0.125
+ 0.375  0.875  0.375  0.875
+ 0.875  0.375  0.875  0.375</code></pre><p>Linear order for randomized sequences has expected syntax </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(4)
 rds = RandomDigitalShift(ds,1,17)
 FirstLinear(rds,2)
 # output
@@ -358,4 +358,4 @@ for i=1:7 vlines!(ax,i/8,color=JULIA4LOGOCOLORS[3],alpha=1); hlines!(ax,i/8,colo
 for i=1:3 vlines!(ax,i/4,color=JULIA4LOGOCOLORS[2],alpha=1); hlines!(ax,i/4,color=JULIA4LOGOCOLORS[2],alpha=1) end 
 for i=1:1 vlines!(ax,i/2,color=JULIA4LOGOCOLORS[1],alpha=1); hlines!(ax,i/2,color=JULIA4LOGOCOLORS[1],alpha=1) end 
 hidespines!(ax); hidedecorations!(ax); hidexdecorations!(ax,grid = false); hideydecorations!(ax, ticks = false)
-save(joinpath(PLOTDIR,&quot;logo.svg&quot;),fig)</code></pre><p><img src="../assets/logo.svg" alt="image"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.25 on <span class="colophon-date" title="Thursday 6 July 2023 23:54">Thursday 6 July 2023</span>. Using Julia version 1.9.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+save(joinpath(PLOTDIR,&quot;logo.svg&quot;),fig)</code></pre><p><img src="../assets/logo.svg" alt="image"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.25 on <span class="colophon-date" title="Thursday 20 July 2023 18:33">Thursday 20 July 2023</span>. Using Julia version 1.9.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
