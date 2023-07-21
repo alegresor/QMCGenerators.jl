@@ -161,7 +161,7 @@ mutable struct RandomOwenScramble
 end
 
 function RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,rngs::Matrix{Xoshiro})
-    t = max(5,seq.t) # FIXXXXX max(53,seq.t)
+    t = max(53,seq.t)
     recipd = t>53 ? BigFloat(2)^(-t) : Float64(2)^(-t)
     scrambles = Matrix{BTree}(undef,r,seq.s)
     for i=1:r 
@@ -184,28 +184,30 @@ function Reset!(rds::RandomOwenScramble)
     Reset!(rds.seq)
 end
 
-function GetScrambleScalar(xb::BigInt,k::Int64,t::Int64,scramble::BTree,rng::Xoshiro)
+function GetScrambleScalar(xb::BigInt,t::Int64,scramble::BTree,rng::Xoshiro)
     if scramble.xb === nothing # branch node, typeof(scramble.rbits) == Bool
-        r1 = BigInt(scramble.rbits)<<(t-k)
-        return  r1 + GetScrambleScalar(xb&(BigInt(2)^(t-k)-1),k+1,t,scramble,rng)
+        r1 = BigInt(scramble.rbits)<<(t-1)
+        b = Bool((xb>>(t-1))&1)
+        onesmask = BigInt(2)^(t-1)-1
+        scramble = ~b ? scramble.left : scramble.right
+        return  r1 + GetScrambleScalar(xb&onesmask,t-1,scramble,rng)
     elseif scramble.xb != xb # unseen leaf node
         ogsrbits,orsxb = scramble.rbits,scramble.xb
         b,ubit = nothing,nothing
-        rmask = BigInt(2)^(t-k+1)-1
+        rmask = BigInt(2)^t-1
         while true
-            b,ubit,rbit = Bool((xb>>(t-k))&1),Bool((orsxb>>(t-k))&1),Bool((ogsrbits>>(t-k))&1)
+            b,ubit,rbit = Bool((xb>>(t-1))&1),Bool((orsxb>>(t-1))&1),Bool((ogsrbits>>(t-1))&1)
             scramble.rbits,scramble.xb = rbit,nothing
-            if ~(ubit === b) break end
+            if ubit != b break end
             scramble = ~b ? scramble.left = BTree() : scramble.right = BTree()
-            k += 1
+            t -= 1
         end
-        # TODO: add rbit to terminal node 
-        onesmask = BigInt(2)^(t-k)-1
+        onesmask = BigInt(2)^(t-1)-1
         newrbits = rand(rng,0:onesmask)
         scramble.left = ~b ? BTree(newrbits,xb&onesmask) : BTree(ogsrbits&onesmask,orsxb&onesmask)
         scramble.right = b ? BTree(newrbits,xb&onesmask) : BTree(ogsrbits&onesmask,orsxb&onesmask)
         rmask ⊻= onesmask
-        return (scramble.rbits&rmask) + newrbits
+        return (ogsrbits&rmask) + newrbits
     else # scramble.xb == xb
         return scramble.rbits # seen leaf node 
     end
@@ -219,7 +221,7 @@ function OwenScramble(rds::RandomOwenScramble,xb::Matrix{BigInt},n::Int64)
                 xbij = xb[i,j]<<rds.tdiff
                 b = Bool(xbij>>(rds.t-1)&1)
                 scramble = ~b ? rds.scrambles[l,j].left : rds.scrambles[l,j].right
-                xrbs[l][i,j] = xbij ⊻ GetScrambleScalar(xbij,1,rds.t,scramble,rds.rngs[l,j])
+                xrbs[l][i,j] = xbij ⊻ GetScrambleScalar(xbij,rds.t,scramble,rds.rngs[l,j])
             end
         end 
     end
