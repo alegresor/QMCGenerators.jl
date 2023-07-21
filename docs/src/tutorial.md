@@ -725,7 +725,7 @@ CairoMakie.Screen{SVG}
 
 ```jldoctest plots; output = false
 nvec = [1,4,16,64]
-rds = RandomDigitalShift(DigitalSeqB2G(2),1,17)
+rds = RandomOwenScramble(DigitalSeqB2G(2),1,17)
 x = Next(rds,maximum(nvec))
 fig = Figure(resolution=(500,500),backgroundcolor=:transparent)
 ax = Axis(fig[1,1],aspect=1,xticklabelsvisible=false,yticklabelsvisible=false,backgroundcolor=:transparent)
