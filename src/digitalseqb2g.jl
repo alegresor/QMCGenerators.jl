@@ -166,7 +166,7 @@ function RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,rngs::Matrix{Xoshiro})
     scrambles = Matrix{BTree}(undef,r,seq.s)
     for i=1:r 
         for j=1:seq.s 
-            r1 = rand(rngs[i,j],Bool)<<(t-1)
+            r1 = BigInt(rand(rngs[i,j],Bool))<<(t-1)
             rbitsleft,rbitsright = r1 + rand(rngs[i,j],0:(BigInt(2)^(t-1)-1)),r1 + rand(rngs[i,j],0:(BigInt(2)^(t-1)-1))
             scrambles[i,j] = BTree(BTree(rbitsleft,BigInt(0)),BTree(rbitsright,BigInt(2)^(t-1)))
         end 
@@ -189,8 +189,18 @@ function GetScrambleScalar(xb::BigInt,t::Int64,scramble::BTree,rng::Xoshiro)
         r1 = BigInt(scramble.rbits)<<(t-1)
         b = Bool((xb>>(t-1))&1)
         onesmask = BigInt(2)^(t-1)-1
+        xbnext = xb&onesmask
+        if ~b & (scramble.left === nothing)
+            rbits = rand(rng,0:onesmask)
+            scramble.left = BTree(rbits,xbnext)
+            return r1+rbits
+        elseif b & (scramble.right === nothing)
+            rbits = rand(rng,0:onesmask)
+            scramble.right = BTree(rbits,xbnext)
+            return r1+rbits
+        end
         scramble = ~b ? scramble.left : scramble.right
-        return  r1 + GetScrambleScalar(xb&onesmask,t-1,scramble,rng)
+        return  r1 + GetScrambleScalar(xbnext,t-1,scramble,rng)
     elseif scramble.xb != xb # unseen leaf node
         ogsrbits,orsxb = scramble.rbits,scramble.xb
         b,ubit = nothing,nothing
