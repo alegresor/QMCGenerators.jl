@@ -171,7 +171,7 @@ Reset!(ls)
 
 ### Randomized Sequences 
 
-A speed and performance comparison randomization routines is shown in the [MC vs QMC](@ref) section. 
+A comparison of randomization routines on an example problem is given in the [MC vs QMC](@ref) section. 
 
 A random shift may be applied to Lattice sequences with the API shown in the [Common Usage](@ref) section.
 
@@ -819,7 +819,7 @@ CairoMakie.Screen{SVG}
 ### Multiple Randomizations
 
 ```jldoctest plots; output = false
-rds = RandomDigitalShift(DigitalSeqB2G(3),3)
+rds = RandomDigitalShift(DigitalSeqB2G(LinearMatrixScramble(3)),3)
 fig = qmcscatter!(rds,nvec,dvec)
 save(joinpath(PLOTDIR,"randomizations.svg"),fig)
 # output
@@ -832,9 +832,10 @@ CairoMakie.Screen{SVG}
 
 ```jldoctest plots; output = false
 iid = IIDU01Seq(3)
-rds = RandomDigitalShift(DigitalSeqB2G(3))
+rds_dslms = RandomDigitalShift(DigitalSeqB2G(LinearMatrixScramble(3)))
+rds_owen = RandomOwenScramble(DigitalSeqB2G(3))
 rls = RandomShift(LatticeSeqB2(3))
-fig = qmcscatter!([1,2^6,2^7,2^8],[1 2],iid=iid,rds=rds,rls=rls)
+fig = qmcscatter!([1,2^6,2^7,2^8],[1 2],iid=iid,rls=rls,rds_dslms=rds_dslms,rds_owen=rds_owen)
 save(joinpath(PLOTDIR,"seq_comparison.svg"),fig)
 # output
 CairoMakie.Screen{SVG}
@@ -857,7 +858,7 @@ r = 100
 seed = 7
 n = 2^m
 s,mu = 7,-11.05684907978818
-rseqs = [IIDU01Seq(s,seed),RandomShift(LatticeSeqB2(s),r,seed),RandomDigitalShift(DigitalSeqB2G(s),r,seed)]
+rseqs = [IIDU01Seq(s,seed),RandomShift(LatticeSeqB2(s),r,seed),RandomDigitalShift(DigitalSeqB2G(LinearMatrixScramble(s)),r,seed)]
 xsets = [
     [Next(rseqs[1],n) for k=1:r],
     NextR(rseqs[2],n),
