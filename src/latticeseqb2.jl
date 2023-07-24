@@ -60,7 +60,7 @@ mutable struct RandomShift
     rshifts::Matrix{Float64}
 end 
 
-RandomShift(seq::LatticeSeqB2,r::Int64,rng::Xoshiro) = RandomShift("Lattice Seq B2 + Random Shift",seq,r,rand(rng,r,seq.s))
+RandomShift(seq::LatticeSeqB2,r::Int64,rng::Xoshiro) = RandomShift("Rand Shift: "*seq.name,seq,r,rand(rng,r,seq.s))
 
 RandomShift(seq::LatticeSeqB2,r::Int64,seed::Int64) = RandomShift(seq,r,Xoshiro(seed))
 

@@ -1,3 +1,47 @@
+mutable struct RandomLinearMatrixScramble
+    s::Int64 
+    Csrlms::Matrix{BigInt}
+    m::Int64
+    t::Int64 
+end
+
+function RandomLinearMatrixScramble(s::Int64,Cs::Matrix{BigInt},rng::Xoshiro) # Matousek
+    @assert s <= size(Cs,1)
+    m = size(Cs,2)
+    tog = maximum(ndigits.(Cs[1,:],base=2))
+    t = max(53,tog)
+    Csr = bitreverse.(Cs[1:s,:],tog)
+    Csrlms = zeros(BigInt,s,m)
+    for j=1:s
+        for k=0:t-1
+            k1 = min(k,tog)
+            delem = BigInt(1)<<(tog-k1-1)
+            ndelem = rand(rng,0:(BigInt(1)<<k1)-1)<<(tog-k1)
+            u = delem+ndelem
+            for l=1:m
+                v = u&Csr[j,l]
+                setbits = 0 
+                for i=0:tog setbits += (v>>i)&1 end 
+                b = setbits%2
+                Csrlms[j,l] += BigInt(b)<<(t-k-1)
+            end
+        end
+    end
+    RandomLinearMatrixScramble(s,Csrlms,m,t)
+end
+
+RandomLinearMatrixScramble(s::Int64,Cs::Matrix{BigInt},seed::Int64) = RandomLinearMatrixScramble(s,Cs,Xoshiro(seed))
+
+RandomLinearMatrixScramble(s::Int64,Cs::Matrix{BigInt}) = RandomLinearMatrixScramble(s,Cs,Xoshiro())
+
+RandomLinearMatrixScramble(s::Int64,path::String,rng::Xoshiro) = RandomLinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt),rng)
+RandomLinearMatrixScramble(s::Int64,path::String,seed::Int64) = RandomLinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt),seed)
+RandomLinearMatrixScramble(s::Int64,path::String) = RandomLinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt))
+
+RandomLinearMatrixScramble(s::Int64,rng::Xoshiro) = RandomLinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX,rng)
+RandomLinearMatrixScramble(s::Int64,seed::Int64) = RandomLinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX,seed)
+RandomLinearMatrixScramble(s::Int64) = RandomLinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX)
+
 mutable struct DigitalSeqB2G
     name::String
     s::Int64 # dimension
@@ -20,12 +64,20 @@ function DigitalSeqB2G(s::Int64,Cs::Matrix{BigInt})
     n = 2^m
     recipd = t>53 ? BigFloat(2)^(-t) : Float64(2)^(-t)
     cur = zeros(BigInt,s)
-    DigitalSeqB2G("Digital Seq  B2",s,Csr,m,t,alpha,n,recipd,-1,cur)
+    DigitalSeqB2G("Digital Seq B2",s,Csr,m,t,alpha,n,recipd,-1,cur)
 end
 
 DigitalSeqB2G(s::Int64,path::String) = DigitalSeqB2G(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt))
 
 DigitalSeqB2G(s::Int64) = DigitalSeqB2G(s,DEFAULT_DIGITALSEQB2G_GMATRIX)
+
+function DigitalSeqB2G(rlms::RandomLinearMatrixScramble)
+    alpha = rlms.t/rlms.m
+    n = 2^rlms.m
+    recipd = rlms.t>53 ? BigFloat(2)^(-rlms.t) : Float64(2)^(-rlms.t)
+    cur = zeros(BigInt,rlms.s)
+    DigitalSeqB2G("LMS Digital Seq B2",rlms.s,rlms.Csrlms,rlms.m,rlms.t,alpha,n,recipd,-1,cur)
+end 
 
 function Reset!(seq::DigitalSeqB2G) 
     seq.k = -1 
@@ -80,10 +132,10 @@ mutable struct RandomDigitalShift
 end 
 
 function RandomDigitalShift(seq::DigitalSeqB2G,r::Int64,rng::Xoshiro)
-    t = max(seq.t,53)
+    t = max(53,seq.t)
     recipd = t>53 ? BigFloat(2)^(-t) : Float64(2)^(-t)
     rshifts = rand(rng,0:(BigInt(2)^t-1),r,seq.s)
-    RandomDigitalShift("Digital Seq B2 + Random Shift",seq,r,rshifts,t,t-seq.t,recipd)
+    RandomDigitalShift("Rand DShift: "*seq.name,seq,r,rshifts,t,t-seq.t,recipd)
 end
 
 RandomDigitalShift(seq::DigitalSeqB2G,r::Int64,seed::Int64) = RandomDigitalShift(seq,r,Xoshiro(seed))
@@ -171,7 +223,7 @@ function RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,rngs::Matrix{Xoshiro})
             scrambles[i,j] = BTree(BTree(rbitsleft,BigInt(0)),BTree(rbitsright,BigInt(2)^(t-1)))
         end 
     end 
-    RandomOwenScramble("Digital Seq B2 + Random Shift",seq,r,rngs,scrambles,t,t-seq.t,recipd)
+    RandomOwenScramble("Rand Owen Scramble: "*seq.name,seq,r,rngs,scrambles,t,t-seq.t,recipd)
 end
 
 RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,seed::Int64) = RandomOwenScramble(seq,r,[Xoshiro(seed+i*seq.s+j) for i=0:r-1,j=0:seq.s-1]) # no ideal, but how to spawn independent RNG streams? 
