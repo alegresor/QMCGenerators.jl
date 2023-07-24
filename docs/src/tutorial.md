@@ -46,6 +46,11 @@ A similar API is available for digital sequences with an additional seed 11 for 
 ```jldoctest
 Next(RandomDigitalShift(DigitalSeqB2G(LinearMatrixScramble(3,11)),1,7),4)
 # output
+4×3 Matrix{Float64}:
+ 0.243795  0.719182  0.810814
+ 0.765309  0.217124  0.433938
+ 0.586294  0.922505  0.665123
+ 0.420247  0.389167  0.0420291
 ```
 
 !!! warning
@@ -166,7 +171,9 @@ Reset!(ls)
 
 ### Randomized Sequences 
 
-A random shift may be applied to Lattice sequences with the API shown in the [Common Usage](@ref) section. A speed comparison randomization routines is shown in the [MC vs QMC](@ref) section. 
+A speed and performance comparison randomization routines is shown in the [MC vs QMC](@ref) section. 
+
+A random shift may be applied to Lattice sequences with the API shown in the [Common Usage](@ref) section.
 
 Digital sequences have multiple randomization options available.
 
@@ -175,18 +182,33 @@ Digital sequences have multiple randomization options available.
 rds = RandomOwenScramble(DigitalSeqB2G(3),1,7)
 Next(rds,4)
 # output
+4×3 Matrix{Float64}:
+ 0.359591  0.511569   0.0112043
+ 0.905407  0.380242   0.721128
+ 0.616449  0.82345    0.259704
+ 0.235762  0.0709949  0.840794
 ```
 - **Digital shifts** provide a less thorough randomization, but are very fast to compute.
 ```jldoctest
 rds = RandomDigitalShift(DigitalSeqB2G(3),1,7)
 Next(rds,4)
 # output
+4×3 Matrix{Float64}:
+ 0.243795  0.719182  0.810814
+ 0.743795  0.219182  0.310814
+ 0.993795  0.969182  0.560814
+ 0.493795  0.469182  0.0608139
 ```
 - **Linear matrix scrambling** with digital shifts provide a nice compromise in both randomization completeness and speed. This is the example shown in the [Common Usage](@ref) section. Owen scrambling with LMS is also available. 
 ```jldoctest
 rds = RandomOwenScramble(DigitalSeqB2G(LinearMatrixScramble(3,11)),1,7)
 Next(rds,4)
 # output
+4×3 Matrix{Float64}:
+ 0.359591   0.511569   0.0112043
+ 0.626183   0.428964   0.506758
+ 0.837211   0.773829   0.448894
+ 0.0700369  0.0435462  0.981414
 ```
 
 !!! warning
@@ -195,6 +217,11 @@ Next(rds,4)
     ds = DigitalSeqB2G(LinearMatrixScramble(3,11))
     Next(ds,4)
     # output
+    4×3 Matrix{Float64}:
+     0.0       0.0       0.0
+     0.990266  0.560686  0.627061
+     0.658173  0.328935  0.397781
+     0.335878  0.858341  0.770812
     ``` 
     A digital shift or Owen scramble should be applied to the digital sequence with LMS in order to randomize the sequence. 
 
@@ -204,6 +231,10 @@ Linear matrix scrambling is applied directly to the generating matrix of a digit
 rds = LinearMatrixScramble(3,11)
 rds.Csrlms[1:3,1:3]
 # output
+3×3 Matrix{BigInt}:
+ 8919527391347378  3025319916407160  1464034688344015
+ 5050214857409105  7731249259815715  6461603654309845
+ 5648063034791762  6942855285482651  2573696225362753
 ```
 
 An explicit generating matrix or path to an existing generating matrix may also be supplied as discussed in the [Alternative Generating Matrices and Vectors](@ref) section. 
@@ -318,6 +349,11 @@ Linear matrix scrambling also accepts these relative paths
 ds = DigitalSeqB2G(LinearMatrixScramble(3,"sobolmats/sobol_alpha2_Bs64.col",11))
 Next(ds,4)
 # output
+4×3 Matrix{Float64}:
+ 0.0       0.0       0.0
+ 0.658173  0.63256   0.679829
+ 0.782294  0.183957  0.505698
+ 0.375891  0.558481  0.185488
 ```
 
 Alternative Lattice generating vectors are available in [this directory](https://bitbucket.org/dnuyens/qmc-generators/src/master/LATSEQ/). For Lattices, after supplying the path you also need to pass the $m$ value in the file name
@@ -365,6 +401,11 @@ Linear matrix scrambling also accommodates such constructions
 ds = DigitalSeqB2G(LinearMatrixScramble(2,generating_matrix,11))
 Next(ds,4)
 # output
+4×2 Matrix{Float64}:
+ 0.0       0.0
+ 0.990266  0.560686
+ 0.658173  0.328935
+ 0.335878  0.858341
 ```
 
 For base 2 Lattices, you may supply the generating vector followed by $m$ where $2^m$ is the maximum number of supported points 
@@ -462,6 +503,10 @@ rds = RandomDigitalShift(ds,1,17)
 FirstLinear(rds,2)
 # output
 4×4 Matrix{Float64}:
+ 0.844967  0.66901   0.686087   0.362606
+ 0.147672  0.143755  0.0591478  0.763464
+ 0.553525  0.441285  0.417735   0.592539
+ 0.43826   0.99782   0.790888   0.0315167
 ```
 
 ```jldoctest tut_ds_order_rand
@@ -470,12 +515,20 @@ xs = FirstRLinear(rds,2)
 xs[1]
 # output
 4×4 Matrix{Float64}:
+ 0.844967  0.686087  0.936228  0.96835
+ 0.147672  0.125648  0.30926   0.40729
+ 0.553525  0.453604  0.167958  0.236434
+ 0.43826   0.982762  0.540899  0.637314
 ```
 
 ```jldoctest tut_ds_order_rand
 xs[2]
 # output
 4×4 Matrix{Float64}:
+ 0.66901    0.362606   0.532599  0.347617
+ 0.338961   0.825602   0.15966   0.778756
+ 0.994997   0.529045   0.300957  0.576634
+ 0.0126071  0.0347692  0.927926  0.0478464
 ```
 
 ```jldoctest tut_ds_order_rand
@@ -484,12 +537,20 @@ xs = FirstRLinear(rds,2)
 xs[1]
 # output
 4×4 Matrix{Float64}:
+ 0.334505  0.968778  0.868892  0.889365
+ 0.666854  0.394564  0.474957  0.269781
+ 0.180041  0.101227  0.234054  0.124233
+ 0.974442  0.567685  0.667169  0.65374
 ```
 
 ```jldoctest tut_ds_order_rand
 xs[2]
 # output
 4×4 Matrix{Float64}:
+ 0.365688  0.168378  0.350877  0.521026
+ 0.889713  0.602953  0.766978  0.470412
+ 0.219034  0.947638  0.632701  0.0116956
+ 0.631861  0.471947  0.121386  0.890446
 ```
 
 For lattices a similar API holds
@@ -500,12 +561,20 @@ xs = FirstRLinear(rls,2)
 xs[1]
 # output
 4×4 Matrix{Float64}:
+ 0.447971  0.593933   0.190141  0.331784
+ 0.697971  0.843933   0.440141  0.581784
+ 0.947971  0.0939328  0.690141  0.831784
+ 0.197971  0.343933   0.940141  0.081784
 ```
 
 ```jldoctest tut_ds_order_rand
 xs[2]
 # output
 4×4 Matrix{Float64}:
+ 0.868892  0.697591  0.828991   0.475479
+ 0.118892  0.947591  0.0789912  0.725479
+ 0.368892  0.197591  0.328991   0.975479
+ 0.618892  0.447591  0.578991   0.225479
 ```
 
 ### Binary Functions for Digital Sequences
@@ -585,7 +654,12 @@ BinaryToFloat64(xbs,rds_multiple)
 ```jldoctest tut_ds_binary
 Reset!(ds)
 NextBinary(RandomOwenScramble(ds,1,11),4)
-# output 
+# output
+4×4 Matrix{BigInt}:
+ 3216195069023594  8730598809036930  3971523210029246  6141887440288666
+ 8389519640875211  2477767434308063  7574864919383295  3817737583844873
+ 6085666113522559  6637307535196660   204988815107738  8368741240010798
+ 1940282562637519   876022531469264  5823154875392247   737874957638321
 ```
 
 Getting binary points with linear ordering is also supported. 
@@ -630,7 +704,13 @@ xbs[2]
 ```
 ```jldoctest tut_ds_binary
 Reset!(ds)
-NextFirstLinearBinary(RandomOwenScramble(ds,1,11),4)
+FirstLinearBinary(RandomOwenScramble(ds,1,11),2)
+# output
+4×4 Matrix{BigInt}:
+ 3216195069023594  8730598809036930  3971523210029246  6141887440288666
+ 8389519640875211  2477767434308063  7574864919383295  3817737583844873
+ 1582066486152063  2133707907826164  4708588442478234  1613341798955054
+ 6443882190008015  5379622158839760  1319555248021751  7493274398694065
 ```
 
 These may be converted to floats as before. 

@@ -316,7 +316,7 @@ end
 
 Next(rds::RandomOwenScramble) = Next(rds,1)
 
-FirstRLinearBinary(rds::RandomOwenScramble,m::Int64) = BinaryToFloat64(OwenScramble(rds,FirstLinearBinary(rds.seq,m),2^m),rds)
+FirstRLinearBinary(rds::RandomOwenScramble,m::Int64) = OwenScramble(rds,FirstLinearBinary(rds.seq,m),2^m)
 
 function FirstLinearBinary(rds::RandomOwenScramble,m::Int64)
     rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
