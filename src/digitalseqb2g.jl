@@ -1,11 +1,11 @@
-mutable struct RandomLinearMatrixScramble
+mutable struct LinearMatrixScramble
     s::Int64 
     Csrlms::Matrix{BigInt}
     m::Int64
     t::Int64 
 end
 
-function RandomLinearMatrixScramble(s::Int64,Cs::Matrix{BigInt},rng::Xoshiro) # Matousek
+function LinearMatrixScramble(s::Int64,Cs::Matrix{BigInt},rng::Xoshiro) # Matousek
     @assert s <= size(Cs,1)
     m = size(Cs,2)
     tog = maximum(ndigits.(Cs[1,:],base=2))
@@ -27,20 +27,20 @@ function RandomLinearMatrixScramble(s::Int64,Cs::Matrix{BigInt},rng::Xoshiro) # 
             end
         end
     end
-    RandomLinearMatrixScramble(s,Csrlms,m,t)
+    LinearMatrixScramble(s,Csrlms,m,t)
 end
 
-RandomLinearMatrixScramble(s::Int64,Cs::Matrix{BigInt},seed::Int64) = RandomLinearMatrixScramble(s,Cs,Xoshiro(seed))
+LinearMatrixScramble(s::Int64,Cs::Matrix{BigInt},seed::Int64) = LinearMatrixScramble(s,Cs,Xoshiro(seed))
 
-RandomLinearMatrixScramble(s::Int64,Cs::Matrix{BigInt}) = RandomLinearMatrixScramble(s,Cs,Xoshiro())
+LinearMatrixScramble(s::Int64,Cs::Matrix{BigInt}) = LinearMatrixScramble(s,Cs,Xoshiro())
 
-RandomLinearMatrixScramble(s::Int64,path::String,rng::Xoshiro) = RandomLinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt),rng)
-RandomLinearMatrixScramble(s::Int64,path::String,seed::Int64) = RandomLinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt),seed)
-RandomLinearMatrixScramble(s::Int64,path::String) = RandomLinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt))
+LinearMatrixScramble(s::Int64,path::String,rng::Xoshiro) = LinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt),rng)
+LinearMatrixScramble(s::Int64,path::String,seed::Int64) = LinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt),seed)
+LinearMatrixScramble(s::Int64,path::String) = LinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt))
 
-RandomLinearMatrixScramble(s::Int64,rng::Xoshiro) = RandomLinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX,rng)
-RandomLinearMatrixScramble(s::Int64,seed::Int64) = RandomLinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX,seed)
-RandomLinearMatrixScramble(s::Int64) = RandomLinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX)
+LinearMatrixScramble(s::Int64,rng::Xoshiro) = LinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX,rng)
+LinearMatrixScramble(s::Int64,seed::Int64) = LinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX,seed)
+LinearMatrixScramble(s::Int64) = LinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX)
 
 mutable struct DigitalSeqB2G
     name::String
@@ -71,7 +71,7 @@ DigitalSeqB2G(s::Int64,path::String) = DigitalSeqB2G(s,readdlm(download(joinpath
 
 DigitalSeqB2G(s::Int64) = DigitalSeqB2G(s,DEFAULT_DIGITALSEQB2G_GMATRIX)
 
-function DigitalSeqB2G(rlms::RandomLinearMatrixScramble)
+function DigitalSeqB2G(rlms::LinearMatrixScramble)
     alpha = rlms.t/rlms.m
     n = 2^rlms.m
     recipd = rlms.t>53 ? BigFloat(2)^(-rlms.t) : Float64(2)^(-rlms.t)

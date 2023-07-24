@@ -29,19 +29,7 @@ using QMCGenerators
 
 ## Common Usage
 
-Often we just want to generate a single randomized quasi-random sequence. For example, to generate the first 4 points of a 3 dimensional digital net with 1 random digital shift with seed 7
-
-```jldoctest
-Next(RandomDigitalShift(DigitalSeqB2G(3),1,7),4)
-# output
-4×3 Matrix{Float64}:
- 0.243795  0.719182  0.810814
- 0.743795  0.219182  0.310814
- 0.993795  0.969182  0.560814
- 0.493795  0.469182  0.0608139
-```
-
-A similar API is available for randomly shifted Lattices:
+Often we just want to generate a single randomized quasi-random sequence. For example, to generate the first $4$ points of a $3$ dimensional lattice with $1$ random shift with seed $7$
 
 ```jldoctest
 Next(RandomShift(LatticeSeqB2(3),1,7),4)
@@ -53,13 +41,20 @@ Next(RandomShift(LatticeSeqB2(3),1,7),4)
  0.993795  0.469182  0.560814
 ```
 
+A similar API is available for digital sequences with an additional seed 11 for the linear matrix scrambling
+
+```jldoctest
+Next(RandomDigitalShift(DigitalSeqB2G(LinearMatrixScramble(3,11)),1,7),4)
+# output
+```
+
 !!! warning
     While not strictly enforced, sample sizes should be powers of two to achieve full coverage of $[0,1]^s$
 
 In the following sections we always supply a seed for reproducibility. Supplying a seed requires you also supply the number of randomizations as done above. However, if you do not wish to seed, you can simply supply the number of randomizations. 
 
 ```jldoctest tut_no_seed
-rls = RandomDigitalShift(DigitalSeqB2G(12),2)
+rls = RandomShift(LatticeSeqB2(12),2)
 xs = NextR(rls,2^7)
 size(xs)
 # output
@@ -73,14 +68,22 @@ true
 
 Moreover, you may use only one randomization without a seed with the simplified API
 ```jldoctest
-rls = RandomDigitalShift(DigitalSeqB2G(52))
+rls = RandomShift(LatticeSeqB2(52))
 x = Next(rls,2^14)
 size(x)
 # output
 (16384, 52)
 ```
 
-The same API simplifications holds for Lattices. 
+The same API simplifications holds for digital sequences  
+
+```jldoctest
+rds = RandomDigitalShift(DigitalSeqB2G(LinearMatrixScramble(52)))
+x = Next(rds,2^14)
+size(x)
+# output
+(16384, 52)
+```
 
 ## Structure and Functions
 
@@ -161,11 +164,57 @@ Reset!(ls)
 # output
 ```
 
+### Randomized Sequences 
+
+A random shift may be applied to Lattice sequences with the API shown in the [Common Usage](@ref) section. A speed comparison randomization routines is shown in the [MC vs QMC](@ref) section. 
+
+Digital sequences have multiple randomization options available.
+
+- **Owen's scrambling** maximally randomizes a sequence, but is slow to compute. 
+```jldoctest
+rds = RandomOwenScramble(DigitalSeqB2G(3),1,7)
+Next(rds,4)
+# output
+```
+- **Digital shifts** provide a less thorough randomization, but are very fast to compute.
+```jldoctest
+rds = RandomDigitalShift(DigitalSeqB2G(3),1,7)
+Next(rds,4)
+# output
+```
+- **Linear matrix scrambling** with digital shifts provide a nice compromise in both randomization completeness and speed. This is the example shown in the [Common Usage](@ref) section. Owen scrambling with LMS is also available. 
+```jldoctest
+rds = RandomOwenScramble(DigitalSeqB2G(LinearMatrixScramble(3,11)),1,7)
+Next(rds,4)
+# output
+```
+
+!!! warning
+    Linear matrix scrambling randomizes the generating matrix but does not randomize the sequence. The first point of a digital sequence with LMS is still $0 \in [0,1]^s$ as shown in the following example. 
+    ```jldoctest
+    ds = DigitalSeqB2G(LinearMatrixScramble(3,11))
+    Next(ds,4)
+    # output
+    ``` 
+    A digital shift or Owen scramble should be applied to the digital sequence with LMS in order to randomize the sequence. 
+
+Linear matrix scrambling is applied directly to the generating matrix of a digital sequence e.g. the following code applies an LMS to the first 3 dimensions of the default generating matrix with seed 7.
+    
+```jldoctest
+rds = LinearMatrixScramble(3,11)
+rds.Csrlms[1:3,1:3]
+# output
+```
+
+An explicit generating matrix or path to an existing generating matrix may also be supplied as discussed in the [Alternative Generating Matrices and Vectors](@ref) section. 
+
+
 ###  Independent Sequence Randomizations
 
 Getting a single randomization was shown in the [Common Usage](@ref) section. Support is also available for multiple independent randomizations. For instance, we can generating 2 independent randomizations with seed 11 and get the next 4 points in each sequence via  
 
 ```jldoctest tut_ds
+ds = DigitalSeqB2G(5)
 rds = RandomDigitalShift(ds,2,11)
 xs = NextR(rds,4)
 typeof(xs)
@@ -263,6 +312,14 @@ Next(ds,4)
  0.4375  0.9375  0.1875
 ```
 
+Linear matrix scrambling also accepts these relative paths 
+
+```jldoctest 
+ds = DigitalSeqB2G(LinearMatrixScramble(3,"sobolmats/sobol_alpha2_Bs64.col",11))
+Next(ds,4)
+# output
+```
+
 Alternative Lattice generating vectors are available in [this directory](https://bitbucket.org/dnuyens/qmc-generators/src/master/LATSEQ/). For Lattices, after supplying the path you also need to pass the $m$ value in the file name
 
 ```jldoctest
@@ -300,6 +357,14 @@ Next(ds,4)
  0.5   0.5
  0.75  0.25
  0.25  0.75
+```
+
+Linear matrix scrambling also accommodates such constructions 
+
+```jldoctest tut_ds_custom_matrix
+ds = DigitalSeqB2G(LinearMatrixScramble(2,generating_matrix,11))
+Next(ds,4)
+# output
 ```
 
 For base 2 Lattices, you may supply the generating vector followed by $m$ where $2^m$ is the maximum number of supported points 
@@ -392,39 +457,56 @@ Next(ls,n)
 Linear order for randomized sequences has expected syntax 
 
 ```jldoctest tut_ds_order_rand
-ds = DigitalSeqB2G(4)
+ds = DigitalSeqB2G(LinearMatrixScramble(4,11))
 rds = RandomDigitalShift(ds,1,17)
 FirstLinear(rds,2)
 # output
 4×4 Matrix{Float64}:
- 0.844967   0.66901  0.686087  0.362606
- 0.344967   0.16901  0.186087  0.862606
- 0.594967   0.41901  0.436087  0.612606
- 0.0949675  0.91901  0.936087  0.112606
 ```
+
 ```jldoctest tut_ds_order_rand
 rds = RandomDigitalShift(ds,2,17)
 xs = FirstRLinear(rds,2)
 xs[1]
 # output
 4×4 Matrix{Float64}:
- 0.844967   0.686087  0.936228  0.96835
- 0.344967   0.186087  0.436228  0.46835
- 0.594967   0.436087  0.186228  0.21835
- 0.0949675  0.936087  0.686228  0.71835
 ```
 
 ```jldoctest tut_ds_order_rand
 xs[2]
 # output
 4×4 Matrix{Float64}:
- 0.66901  0.362606  0.532599   0.347617
- 0.16901  0.862606  0.0325994  0.847617
- 0.91901  0.612606  0.282599   0.597617
- 0.41901  0.112606  0.782599   0.0976169
 ```
 
-The same functions are available for randomly shifted lattices. 
+```jldoctest tut_ds_order_rand
+rds = RandomOwenScramble(ds,2,17)
+xs = FirstRLinear(rds,2)
+xs[1]
+# output
+4×4 Matrix{Float64}:
+```
+
+```jldoctest tut_ds_order_rand
+xs[2]
+# output
+4×4 Matrix{Float64}:
+```
+
+For lattices a similar API holds
+
+```jldoctest tut_ds_order_rand
+rls = RandomShift(LatticeSeqB2(4),2,17)
+xs = FirstRLinear(rls,2)
+xs[1]
+# output
+4×4 Matrix{Float64}:
+```
+
+```jldoctest tut_ds_order_rand
+xs[2]
+# output
+4×4 Matrix{Float64}:
+```
 
 ### Binary Functions for Digital Sequences
 
@@ -500,6 +582,11 @@ BinaryToFloat64(xbs,rds_multiple)
  [0.5805097055341872 0.8628475741689268 0.8616585501275508 0.9198205736171892; 0.08050970553418724 0.36284757416892677 0.36165855012755077 0.41982057361718916; 0.33050970553418724 0.6128475741689268 0.6116585501275508 0.6698205736171892; 0.8305097055341872 0.11284757416892677 0.11165855012755077 0.16982057361718916]
  [0.7141387634631778 0.702578655765535 0.013014669814919055 0.9013257192221112; 0.21413876346317784 0.20257865576553502 0.513014669814919 0.40132571922211124; 0.46413876346317784 0.952578655765535 0.26301466981491906 0.6513257192221112; 0.9641387634631778 0.452578655765535 0.763014669814919 0.15132571922211124]
 ```
+```jldoctest tut_ds_binary
+Reset!(ds)
+NextBinary(RandomOwenScramble(ds,1,11),4)
+# output 
+```
 
 Getting binary points with linear ordering is also supported. 
 
@@ -540,6 +627,10 @@ xbs[2]
  1928790510676693  1824666317237759  4620825351628135  3614820719085793
  8684189951732437  4076466130923007  6872625165313383  1363020905400545
  4180590324361941  8580065758293503  2369025537942887  5866620532771041
+```
+```jldoctest tut_ds_binary
+Reset!(ds)
+NextFirstLinearBinary(RandomOwenScramble(ds,1,11),4)
 ```
 
 These may be converted to floats as before. 
