@@ -1,27 +1,31 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · QMCGenerators.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.svg" alt="QMCGenerators.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../">QMCGenerators.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Tutorial</a><ul class="internal"><li><a class="tocitem" href="#Common-Usage"><span>Common Usage</span></a></li><li><a class="tocitem" href="#Structure-and-Functions"><span>Structure and Functions</span></a></li><li><a class="tocitem" href="#Advanced-Features"><span>Advanced Features</span></a></li><li><a class="tocitem" href="#Plotting"><span>Plotting</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Tutorial</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Tutorial</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/alegresor/QMCGenerators.jl/blob/main/docs/src/tutorial.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Tutorial"><a class="docs-heading-anchor" href="#Tutorial">Tutorial</a><a id="Tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#Tutorial" title="Permalink"></a></h1><ul><li><a href="#Tutorial">Tutorial</a></li><li class="no-marker"><ul><li><a href="#Common-Usage">Common Usage</a></li><li><a href="#Structure-and-Functions">Structure and Functions</a></li><li class="no-marker"><ul><li><a href="#Unrandomized-Sequences">Unrandomized Sequences</a></li><li><a href="#Independent-Sequence-Randomizations">Independent Sequence Randomizations</a></li></ul></li><li><a href="#Advanced-Features">Advanced Features</a></li><li class="no-marker"><ul><li><a href="#Alternative-Generating-Matrices-and-Vectors">Alternative Generating Matrices and Vectors</a></li><li class="no-marker"><ul><li><a href="#Pregenerated">Pregenerated</a></li><li><a href="#User-Defined">User Defined</a></li></ul></li><li><a href="#Linear-Ordering">Linear Ordering</a></li><li><a href="#Binary-Functions-for-Digital-Sequences">Binary Functions for Digital Sequences</a></li><li><a href="#IID-Standard-Uniform-Generator">IID Standard Uniform Generator</a></li></ul></li><li><a href="#Plotting">Plotting</a></li><li class="no-marker"><ul><li><a href="#Single-Projection">Single Projection</a></li><li><a href="#Extensibility">Extensibility</a></li><li><a href="#Multiple-Projections">Multiple Projections</a></li><li><a href="#Multiple-Randomizations">Multiple Randomizations</a></li><li><a href="#Comparison-of-Sequences">Comparison of Sequences</a></li><li><a href="#MC-vs-QMC">MC vs QMC</a></li><li><a href="#Logo">Logo</a></li></ul></li></ul></li></ul><p>To begin, install this package with </p><pre><code class="language-julia hljs">Pkg.add(&quot;QMCGenerators&quot;)</code></pre><p>and then import via</p><pre><code class="language-julia hljs">using QMCGenerators</code></pre><h2 id="Common-Usage"><a class="docs-heading-anchor" href="#Common-Usage">Common Usage</a><a id="Common-Usage-1"></a><a class="docs-heading-anchor-permalink" href="#Common-Usage" title="Permalink"></a></h2><p>Often we just want to generate a single randomized quasi-random sequence. For example, to generate the first 4 points of a 3 dimensional digital net with 1 random digital shift with seed 7</p><pre><code class="language-julia hljs">Next(RandomDigitalShift(DigitalSeqB2G(3),1,7),4)
-# output
-4×3 Matrix{Float64}:
- 0.243795  0.719182  0.810814
- 0.743795  0.219182  0.310814
- 0.993795  0.969182  0.560814
- 0.493795  0.469182  0.0608139</code></pre><p>A similar API is available for randomly shifted Lattices:</p><pre><code class="language-julia hljs">Next(RandomShift(LatticeSeqB2(3),1,7),4)
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · QMCGenerators.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.svg" alt="QMCGenerators.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../">QMCGenerators.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Tutorial</a><ul class="internal"><li><a class="tocitem" href="#Common-Usage"><span>Common Usage</span></a></li><li><a class="tocitem" href="#Structure-and-Functions"><span>Structure and Functions</span></a></li><li><a class="tocitem" href="#Advanced-Features"><span>Advanced Features</span></a></li><li><a class="tocitem" href="#Plotting"><span>Plotting</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Tutorial</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Tutorial</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/alegresor/QMCGenerators.jl/blob/main/docs/src/tutorial.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Tutorial"><a class="docs-heading-anchor" href="#Tutorial">Tutorial</a><a id="Tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#Tutorial" title="Permalink"></a></h1><ul><li><a href="#Tutorial">Tutorial</a></li><li class="no-marker"><ul><li><a href="#Common-Usage">Common Usage</a></li><li><a href="#Structure-and-Functions">Structure and Functions</a></li><li class="no-marker"><ul><li><a href="#Unrandomized-Sequences">Unrandomized Sequences</a></li><li><a href="#Randomized-Sequences">Randomized Sequences</a></li><li><a href="#Independent-Sequence-Randomizations">Independent Sequence Randomizations</a></li></ul></li><li><a href="#Advanced-Features">Advanced Features</a></li><li class="no-marker"><ul><li><a href="#Alternative-Generating-Matrices-and-Vectors">Alternative Generating Matrices and Vectors</a></li><li class="no-marker"><ul><li><a href="#Pregenerated">Pregenerated</a></li><li><a href="#User-Defined">User Defined</a></li></ul></li><li><a href="#Linear-Ordering">Linear Ordering</a></li><li><a href="#Binary-Functions-for-Digital-Sequences">Binary Functions for Digital Sequences</a></li><li><a href="#IID-Standard-Uniform-Generator">IID Standard Uniform Generator</a></li></ul></li><li><a href="#Plotting">Plotting</a></li><li class="no-marker"><ul><li><a href="#Single-Projection">Single Projection</a></li><li><a href="#Extensibility">Extensibility</a></li><li><a href="#Multiple-Projections">Multiple Projections</a></li><li><a href="#Multiple-Randomizations">Multiple Randomizations</a></li><li><a href="#Comparison-of-Sequences">Comparison of Sequences</a></li><li><a href="#MC-vs-QMC">MC vs QMC</a></li><li><a href="#Logo">Logo</a></li></ul></li></ul></li></ul><p>To begin, install this package with </p><pre><code class="language-julia hljs">Pkg.add(&quot;QMCGenerators&quot;)</code></pre><p>and then import via</p><pre><code class="language-julia hljs">using QMCGenerators</code></pre><h2 id="Common-Usage"><a class="docs-heading-anchor" href="#Common-Usage">Common Usage</a><a id="Common-Usage-1"></a><a class="docs-heading-anchor-permalink" href="#Common-Usage" title="Permalink"></a></h2><p>Often we just want to generate a single randomized quasi-random sequence. For example, to generate the first <span>$4$</span> points of a <span>$3$</span> dimensional lattice with <span>$1$</span> random shift with seed <span>$7$</span></p><pre><code class="language-julia hljs">Next(RandomShift(LatticeSeqB2(3),1,7),4)
 # output
 4×3 Matrix{Float64}:
  0.243795  0.719182  0.810814
  0.743795  0.219182  0.310814
  0.493795  0.969182  0.0608139
- 0.993795  0.469182  0.560814</code></pre><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>While not strictly enforced, sample sizes should be powers of two to achieve full coverage of <span>$[0,1]^s$</span></p></div></div><p>In the following sections we always supply a seed for reproducibility. Supplying a seed requires you also supply the number of randomizations as done above. However, if you do not wish to seed, you can simply supply the number of randomizations. </p><pre><code class="language-julia hljs">rls = RandomDigitalShift(DigitalSeqB2G(12),2)
+ 0.993795  0.469182  0.560814</code></pre><p>A similar API is available for digital sequences with an additional seed 11 for the linear matrix scrambling</p><pre><code class="language-julia hljs">Next(RandomDigitalShift(DigitalSeqB2G(LinearMatrixScramble(3,11)),1,7),4)
+# output
+4×3 Matrix{Float64}:
+ 0.243795  0.719182  0.810814
+ 0.765309  0.217124  0.433938
+ 0.586294  0.922505  0.665123
+ 0.420247  0.389167  0.0420291</code></pre><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>While not strictly enforced, sample sizes should be powers of two to achieve full coverage of <span>$[0,1]^s$</span></p></div></div><p>In the following sections we always supply a seed for reproducibility. Supplying a seed requires you also supply the number of randomizations as done above. However, if you do not wish to seed, you can simply supply the number of randomizations. </p><pre><code class="language-julia hljs">rls = RandomShift(LatticeSeqB2(12),2)
 xs = NextR(rls,2^7)
 size(xs)
 # output
 (2,)</code></pre><pre><code class="language-julia hljs">size(xs[1]) == size(xs[2]) == (2^7,12)
 # output
-true</code></pre><p>Moreover, you may use only one randomization without a seed with the simplified API</p><pre><code class="language-julia hljs">rls = RandomDigitalShift(DigitalSeqB2G(52))
+true</code></pre><p>Moreover, you may use only one randomization without a seed with the simplified API</p><pre><code class="language-julia hljs">rls = RandomShift(LatticeSeqB2(52))
 x = Next(rls,2^14)
 size(x)
 # output
-(16384, 52)</code></pre><p>The same API simplifications holds for Lattices. </p><h2 id="Structure-and-Functions"><a class="docs-heading-anchor" href="#Structure-and-Functions">Structure and Functions</a><a id="Structure-and-Functions-1"></a><a class="docs-heading-anchor-permalink" href="#Structure-and-Functions" title="Permalink"></a></h2><h3 id="Unrandomized-Sequences"><a class="docs-heading-anchor" href="#Unrandomized-Sequences">Unrandomized Sequences</a><a id="Unrandomized-Sequences-1"></a><a class="docs-heading-anchor-permalink" href="#Unrandomized-Sequences" title="Permalink"></a></h3><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>It is highly recommended you randomize sequences. The first point of an unrandomized sequence is <span>$0 \in [0,1]^s$</span> which will be transformed to an infinite values in many functions e.g. those composed with taking the inverse CDF of a <span>$\mathcal{N}(0,1)$</span> as done in the section on <a href="../#Quasi-Monte-Carlo">Quasi-Monte Carlo</a>. </p></div></div><p>Let&#39;s start by defining a 5 dimensional (unrandomized) digital sequence and generating the first 4 points.</p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(5)
+(16384, 52)</code></pre><p>The same API simplifications holds for digital sequences  </p><pre><code class="language-julia hljs">rds = RandomDigitalShift(DigitalSeqB2G(LinearMatrixScramble(52)))
+x = Next(rds,2^14)
+size(x)
+# output
+(16384, 52)</code></pre><h2 id="Structure-and-Functions"><a class="docs-heading-anchor" href="#Structure-and-Functions">Structure and Functions</a><a id="Structure-and-Functions-1"></a><a class="docs-heading-anchor-permalink" href="#Structure-and-Functions" title="Permalink"></a></h2><h3 id="Unrandomized-Sequences"><a class="docs-heading-anchor" href="#Unrandomized-Sequences">Unrandomized Sequences</a><a id="Unrandomized-Sequences-1"></a><a class="docs-heading-anchor-permalink" href="#Unrandomized-Sequences" title="Permalink"></a></h3><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>It is highly recommended you randomize sequences. The first point of an unrandomized sequence is <span>$0 \in [0,1]^s$</span> which will be transformed to an infinite values in many functions e.g. those composed with taking the inverse CDF of a <span>$\mathcal{N}(0,1)$</span> as done in the section on <a href="../#Quasi-Monte-Carlo">Quasi-Monte Carlo</a>. </p></div></div><p>Let&#39;s start by defining a 5 dimensional (unrandomized) digital sequence and generating the first 4 points.</p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(5)
 Next(ds,4)
 # output
 4×5 Matrix{Float64}:
@@ -56,7 +60,42 @@ Next(ls,4)
  0.625  0.125  0.625  0.125  0.125
  0.375  0.875  0.375  0.875  0.875
  0.875  0.375  0.875  0.375  0.375</code></pre><pre><code class="language-julia hljs">Reset!(ls)
-# output</code></pre><h3 id="Independent-Sequence-Randomizations"><a class="docs-heading-anchor" href="#Independent-Sequence-Randomizations">Independent Sequence Randomizations</a><a id="Independent-Sequence-Randomizations-1"></a><a class="docs-heading-anchor-permalink" href="#Independent-Sequence-Randomizations" title="Permalink"></a></h3><p>Getting a single randomization was shown in the <a href="#Common-Usage">Common Usage</a> section. Support is also available for multiple independent randomizations. For instance, we can generating 2 independent randomizations with seed 11 and get the next 4 points in each sequence via  </p><pre><code class="language-julia hljs">rds = RandomDigitalShift(ds,2,11)
+# output</code></pre><h3 id="Randomized-Sequences"><a class="docs-heading-anchor" href="#Randomized-Sequences">Randomized Sequences</a><a id="Randomized-Sequences-1"></a><a class="docs-heading-anchor-permalink" href="#Randomized-Sequences" title="Permalink"></a></h3><p>A comparison of randomization routines on an example problem is given in the <a href="#MC-vs-QMC">MC vs QMC</a> section. </p><p>A random shift may be applied to Lattice sequences with the API shown in the <a href="#Common-Usage">Common Usage</a> section.</p><p>Digital sequences have multiple randomization options available.</p><ul><li><strong>Owen&#39;s scrambling</strong> maximally randomizes a sequence, but is slow to compute. </li></ul><pre><code class="language-julia hljs">rds = RandomOwenScramble(DigitalSeqB2G(3),1,7)
+Next(rds,4)
+# output
+4×3 Matrix{Float64}:
+ 0.359591  0.511569   0.0112043
+ 0.905407  0.380242   0.721128
+ 0.616449  0.82345    0.259704
+ 0.235762  0.0709949  0.840794</code></pre><ul><li><strong>Digital shifts</strong> provide a less thorough randomization, but are very fast to compute.</li></ul><pre><code class="language-julia hljs">rds = RandomDigitalShift(DigitalSeqB2G(3),1,7)
+Next(rds,4)
+# output
+4×3 Matrix{Float64}:
+ 0.243795  0.719182  0.810814
+ 0.743795  0.219182  0.310814
+ 0.993795  0.969182  0.560814
+ 0.493795  0.469182  0.0608139</code></pre><ul><li><strong>Linear matrix scrambling</strong> with digital shifts provide a nice compromise in both randomization completeness and speed. This is the example shown in the <a href="#Common-Usage">Common Usage</a> section. Owen scrambling with LMS is also available. </li></ul><pre><code class="language-julia hljs">rds = RandomOwenScramble(DigitalSeqB2G(LinearMatrixScramble(3,11)),1,7)
+Next(rds,4)
+# output
+4×3 Matrix{Float64}:
+ 0.359591   0.511569   0.0112043
+ 0.626183   0.428964   0.506758
+ 0.837211   0.773829   0.448894
+ 0.0700369  0.0435462  0.981414</code></pre><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>Linear matrix scrambling randomizes the generating matrix but does not randomize the sequence. The first point of a digital sequence with LMS is still <span>$0 \in [0,1]^s$</span> as shown in the following example. </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(LinearMatrixScramble(3,11))
+Next(ds,4)
+# output
+4×3 Matrix{Float64}:
+ 0.0       0.0       0.0
+ 0.990266  0.560686  0.627061
+ 0.658173  0.328935  0.397781
+ 0.335878  0.858341  0.770812</code></pre><p>A digital shift or Owen scramble should be applied to the digital sequence with LMS in order to randomize the sequence. </p></div></div><p>Linear matrix scrambling is applied directly to the generating matrix of a digital sequence e.g. the following code applies an LMS to the first 3 dimensions of the default generating matrix with seed 7.</p><pre><code class="language-julia hljs">rds = LinearMatrixScramble(3,11)
+rds.Csrlms[1:3,1:3]
+# output
+3×3 Matrix{BigInt}:
+ 8919527391347378  3025319916407160  1464034688344015
+ 5050214857409105  7731249259815715  6461603654309845
+ 5648063034791762  6942855285482651  2573696225362753</code></pre><p>An explicit generating matrix or path to an existing generating matrix may also be supplied as discussed in the <a href="#Alternative-Generating-Matrices-and-Vectors">Alternative Generating Matrices and Vectors</a> section. </p><h3 id="Independent-Sequence-Randomizations"><a class="docs-heading-anchor" href="#Independent-Sequence-Randomizations">Independent Sequence Randomizations</a><a id="Independent-Sequence-Randomizations-1"></a><a class="docs-heading-anchor-permalink" href="#Independent-Sequence-Randomizations" title="Permalink"></a></h3><p>Getting a single randomization was shown in the <a href="#Common-Usage">Common Usage</a> section. Support is also available for multiple independent randomizations. For instance, we can generating 2 independent randomizations with seed 11 and get the next 4 points in each sequence via  </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(5)
+rds = RandomDigitalShift(ds,2,11)
 xs = NextR(rds,4)
 typeof(xs)
 # output
@@ -108,7 +147,14 @@ Next(ds,4)
  0.0     0.0     0.0
  0.75    0.75    0.75
  0.6875  0.1875  0.9375
- 0.4375  0.9375  0.1875</code></pre><p>Alternative Lattice generating vectors are available in <a href="https://bitbucket.org/dnuyens/qmc-generators/src/master/LATSEQ/">this directory</a>. For Lattices, after supplying the path you also need to pass the <span>$m$</span> value in the file name</p><pre><code class="language-julia hljs">ls = LatticeSeqB2(3,&quot;exod8_base2_m13.txt&quot;,13)
+ 0.4375  0.9375  0.1875</code></pre><p>Linear matrix scrambling also accepts these relative paths </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(LinearMatrixScramble(3,&quot;sobolmats/sobol_alpha2_Bs64.col&quot;,11))
+Next(ds,4)
+# output
+4×3 Matrix{Float64}:
+ 0.0       0.0       0.0
+ 0.658173  0.63256   0.679829
+ 0.782294  0.183957  0.505698
+ 0.375891  0.558481  0.185488</code></pre><p>Alternative Lattice generating vectors are available in <a href="https://bitbucket.org/dnuyens/qmc-generators/src/master/LATSEQ/">this directory</a>. For Lattices, after supplying the path you also need to pass the <span>$m$</span> value in the file name</p><pre><code class="language-julia hljs">ls = LatticeSeqB2(3,&quot;exod8_base2_m13.txt&quot;,13)
 Next(ls,4)
 # output
 4×3 Matrix{Float64}:
@@ -130,7 +176,14 @@ Next(ds,4)
  0.0   0.0
  0.5   0.5
  0.75  0.25
- 0.25  0.75</code></pre><p>For base 2 Lattices, you may supply the generating vector followed by <span>$m$</span> where <span>$2^m$</span> is the maximum number of supported points </p><pre><code class="language-julia hljs">generating_vector = BigInt[1,433461,315689]
+ 0.25  0.75</code></pre><p>Linear matrix scrambling also accommodates such constructions </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(LinearMatrixScramble(2,generating_matrix,11))
+Next(ds,4)
+# output
+4×2 Matrix{Float64}:
+ 0.0       0.0
+ 0.990266  0.560686
+ 0.658173  0.328935
+ 0.335878  0.858341</code></pre><p>For base 2 Lattices, you may supply the generating vector followed by <span>$m$</span> where <span>$2^m$</span> is the maximum number of supported points </p><pre><code class="language-julia hljs">generating_vector = BigInt[1,433461,315689]
 m = 20
 ls = LatticeSeqB2(3,generating_vector,m)
 Next(ls,4)
@@ -185,29 +238,57 @@ FirstLinear(ls,m)
  0.125  0.625  0.125  0.625
  0.625  0.125  0.625  0.125
  0.375  0.875  0.375  0.875
- 0.875  0.375  0.875  0.375</code></pre><p>Linear order for randomized sequences has expected syntax </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(4)
+ 0.875  0.375  0.875  0.375</code></pre><p>Linear order for randomized sequences has expected syntax </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(LinearMatrixScramble(4,11))
 rds = RandomDigitalShift(ds,1,17)
 FirstLinear(rds,2)
 # output
 4×4 Matrix{Float64}:
- 0.844967   0.66901  0.686087  0.362606
- 0.344967   0.16901  0.186087  0.862606
- 0.594967   0.41901  0.436087  0.612606
- 0.0949675  0.91901  0.936087  0.112606</code></pre><pre><code class="language-julia hljs">rds = RandomDigitalShift(ds,2,17)
+ 0.844967  0.66901   0.686087   0.362606
+ 0.147672  0.143755  0.0591478  0.763464
+ 0.553525  0.441285  0.417735   0.592539
+ 0.43826   0.99782   0.790888   0.0315167</code></pre><pre><code class="language-julia hljs">rds = RandomDigitalShift(ds,2,17)
 xs = FirstRLinear(rds,2)
 xs[1]
 # output
 4×4 Matrix{Float64}:
- 0.844967   0.686087  0.936228  0.96835
- 0.344967   0.186087  0.436228  0.46835
- 0.594967   0.436087  0.186228  0.21835
- 0.0949675  0.936087  0.686228  0.71835</code></pre><pre><code class="language-julia hljs">xs[2]
+ 0.844967  0.686087  0.936228  0.96835
+ 0.147672  0.125648  0.30926   0.40729
+ 0.553525  0.453604  0.167958  0.236434
+ 0.43826   0.982762  0.540899  0.637314</code></pre><pre><code class="language-julia hljs">xs[2]
 # output
 4×4 Matrix{Float64}:
- 0.66901  0.362606  0.532599   0.347617
- 0.16901  0.862606  0.0325994  0.847617
- 0.91901  0.612606  0.282599   0.597617
- 0.41901  0.112606  0.782599   0.0976169</code></pre><p>The same functions are available for randomly shifted lattices. </p><h3 id="Binary-Functions-for-Digital-Sequences"><a class="docs-heading-anchor" href="#Binary-Functions-for-Digital-Sequences">Binary Functions for Digital Sequences</a><a id="Binary-Functions-for-Digital-Sequences-1"></a><a class="docs-heading-anchor-permalink" href="#Binary-Functions-for-Digital-Sequences" title="Permalink"></a></h3><p>For digital sequences, we sometimes want the binary representation of points. We can get the binary representations as integers and then convert them to their floating point values as follows </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(4)
+ 0.66901    0.362606   0.532599  0.347617
+ 0.338961   0.825602   0.15966   0.778756
+ 0.994997   0.529045   0.300957  0.576634
+ 0.0126071  0.0347692  0.927926  0.0478464</code></pre><pre><code class="language-julia hljs">rds = RandomOwenScramble(ds,2,17)
+xs = FirstRLinear(rds,2)
+xs[1]
+# output
+4×4 Matrix{Float64}:
+ 0.334505  0.968778  0.868892  0.889365
+ 0.666854  0.394564  0.474957  0.269781
+ 0.180041  0.101227  0.234054  0.124233
+ 0.974442  0.567685  0.667169  0.65374</code></pre><pre><code class="language-julia hljs">xs[2]
+# output
+4×4 Matrix{Float64}:
+ 0.365688  0.168378  0.350877  0.521026
+ 0.889713  0.602953  0.766978  0.470412
+ 0.219034  0.947638  0.632701  0.0116956
+ 0.631861  0.471947  0.121386  0.890446</code></pre><p>For lattices a similar API holds</p><pre><code class="language-julia hljs">rls = RandomShift(LatticeSeqB2(4),2,17)
+xs = FirstRLinear(rls,2)
+xs[1]
+# output
+4×4 Matrix{Float64}:
+ 0.447971  0.593933   0.190141  0.331784
+ 0.697971  0.843933   0.440141  0.581784
+ 0.947971  0.0939328  0.690141  0.831784
+ 0.197971  0.343933   0.940141  0.081784</code></pre><pre><code class="language-julia hljs">xs[2]
+# output
+4×4 Matrix{Float64}:
+ 0.868892  0.697591  0.828991   0.475479
+ 0.118892  0.947591  0.0789912  0.725479
+ 0.368892  0.197591  0.328991   0.975479
+ 0.618892  0.447591  0.578991   0.225479</code></pre><h3 id="Binary-Functions-for-Digital-Sequences"><a class="docs-heading-anchor" href="#Binary-Functions-for-Digital-Sequences">Binary Functions for Digital Sequences</a><a id="Binary-Functions-for-Digital-Sequences-1"></a><a class="docs-heading-anchor-permalink" href="#Binary-Functions-for-Digital-Sequences" title="Permalink"></a></h3><p>For digital sequences, we sometimes want the binary representation of points. We can get the binary representations as integers and then convert them to their floating point values as follows </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(4)
 xb = NextBinary(ds,4)
 # output
 4×4 Matrix{BigInt}:
@@ -249,7 +330,14 @@ xbs[1]
  6432390138047189  6328265944608255   117225724257639  8118420346456289
  1928790510676693  1824666317237759  4620825351628135  3614820719085793
  4180590324361941  8580065758293503  2369025537942887  5866620532771041
- 8684189951732437  4076466130923007  6872625165313383  1363020905400545</code></pre><pre><code class="language-julia hljs">BinaryToFloat64(xbs,rds_multiple)</code></pre><p>Getting binary points with linear ordering is also supported. </p><pre><code class="language-julia hljs">Reset!(ds) # resets rds_single and rds_multiple as well
+ 8684189951732437  4076466130923007  6872625165313383  1363020905400545</code></pre><pre><code class="language-julia hljs">BinaryToFloat64(xbs,rds_multiple)</code></pre><pre><code class="language-julia hljs">Reset!(ds)
+NextBinary(RandomOwenScramble(ds,1,11),4)
+# output
+4×4 Matrix{BigInt}:
+ 3216195069023594  8730598809036930  3971523210029246  6141887440288666
+ 8389519640875211  2477767434308063  7574864919383295  3817737583844873
+ 6085666113522559  6637307535196660   204988815107738  8368741240010798
+ 1940282562637519   876022531469264  5823154875392247   737874957638321</code></pre><p>Getting binary points with linear ordering is also supported. </p><pre><code class="language-julia hljs">Reset!(ds) # resets rds_single and rds_multiple as well
 FirstLinearBinary(ds,2)
 # output
 4×4 Matrix{BigInt}:
@@ -275,7 +363,14 @@ xbs[1]
  6432390138047189  6328265944608255   117225724257639  8118420346456289
  1928790510676693  1824666317237759  4620825351628135  3614820719085793
  8684189951732437  4076466130923007  6872625165313383  1363020905400545
- 4180590324361941  8580065758293503  2369025537942887  5866620532771041</code></pre><p>These may be converted to floats as before. </p><h3 id="IID-Standard-Uniform-Generator"><a class="docs-heading-anchor" href="#IID-Standard-Uniform-Generator">IID Standard Uniform Generator</a><a id="IID-Standard-Uniform-Generator-1"></a><a class="docs-heading-anchor-permalink" href="#IID-Standard-Uniform-Generator" title="Permalink"></a></h3><p>We provide an IID <span>$\mathcal{U}[0,1]^s$</span> generator with the same API as Lattice and digital sequences. This is a wrapper around <a href="https://docs.julialang.org/en/v1/stdlib/Random/#Random.MersenneTwister"><code>Random.MersenneTwister</code></a>.</p><p>For reproducibility, you may provide a seed.</p><pre><code class="language-julia hljs">iiduseq = IIDU01Seq(3,7)
+ 4180590324361941  8580065758293503  2369025537942887  5866620532771041</code></pre><pre><code class="language-julia hljs">Reset!(ds)
+FirstLinearBinary(RandomOwenScramble(ds,1,11),2)
+# output
+4×4 Matrix{BigInt}:
+ 3216195069023594  8730598809036930  3971523210029246  6141887440288666
+ 8389519640875211  2477767434308063  7574864919383295  3817737583844873
+ 1582066486152063  2133707907826164  4708588442478234  1613341798955054
+ 6443882190008015  5379622158839760  1319555248021751  7493274398694065</code></pre><p>These may be converted to floats as before. </p><h3 id="IID-Standard-Uniform-Generator"><a class="docs-heading-anchor" href="#IID-Standard-Uniform-Generator">IID Standard Uniform Generator</a><a id="IID-Standard-Uniform-Generator-1"></a><a class="docs-heading-anchor-permalink" href="#IID-Standard-Uniform-Generator" title="Permalink"></a></h3><p>We provide an IID <span>$\mathcal{U}[0,1]^s$</span> generator with the same API as Lattice and digital sequences. This is a wrapper around <a href="https://docs.julialang.org/en/v1/stdlib/Random/#Random.MersenneTwister"><code>Random.MersenneTwister</code></a>.</p><p>For reproducibility, you may provide a seed.</p><pre><code class="language-julia hljs">iiduseq = IIDU01Seq(3,7)
 Next(iiduseq,4)
 # output
 4×3 Matrix{Float64}:
@@ -307,19 +402,20 @@ save(joinpath(PLOTDIR,&quot;basic.svg&quot;),fig)</code></pre><p><img src="../as
 fig = qmcscatter!(ds,nvec)
 save(joinpath(PLOTDIR,&quot;extensibility.svg&quot;),fig)</code></pre><p><img src="../assets/extensibility.svg" alt="image"/></p><h3 id="Multiple-Projections"><a class="docs-heading-anchor" href="#Multiple-Projections">Multiple Projections</a><a id="Multiple-Projections-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Projections" title="Permalink"></a></h3><pre><code class="language-julia hljs">dvec = [1 2; 1 3; 2 3]
 fig = qmcscatter!(ds,nvec,dvec)
-save(joinpath(PLOTDIR,&quot;projections.svg&quot;),fig)</code></pre><p><img src="../assets/projections.svg" alt="image"/></p><h3 id="Multiple-Randomizations"><a class="docs-heading-anchor" href="#Multiple-Randomizations">Multiple Randomizations</a><a id="Multiple-Randomizations-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Randomizations" title="Permalink"></a></h3><pre><code class="language-julia hljs">rds = RandomDigitalShift(DigitalSeqB2G(3),3)
+save(joinpath(PLOTDIR,&quot;projections.svg&quot;),fig)</code></pre><p><img src="../assets/projections.svg" alt="image"/></p><h3 id="Multiple-Randomizations"><a class="docs-heading-anchor" href="#Multiple-Randomizations">Multiple Randomizations</a><a id="Multiple-Randomizations-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Randomizations" title="Permalink"></a></h3><pre><code class="language-julia hljs">rds = RandomDigitalShift(DigitalSeqB2G(LinearMatrixScramble(3)),3)
 fig = qmcscatter!(rds,nvec,dvec)
 save(joinpath(PLOTDIR,&quot;randomizations.svg&quot;),fig)</code></pre><p><img src="../assets/randomizations.svg" alt="image"/></p><h3 id="Comparison-of-Sequences"><a class="docs-heading-anchor" href="#Comparison-of-Sequences">Comparison of Sequences</a><a id="Comparison-of-Sequences-1"></a><a class="docs-heading-anchor-permalink" href="#Comparison-of-Sequences" title="Permalink"></a></h3><pre><code class="language-julia hljs">iid = IIDU01Seq(3)
-rds = RandomDigitalShift(DigitalSeqB2G(3))
+rds_dslms = RandomDigitalShift(DigitalSeqB2G(LinearMatrixScramble(3)))
+rds_owen = RandomOwenScramble(DigitalSeqB2G(3))
 rls = RandomShift(LatticeSeqB2(3))
-fig = qmcscatter!([1,2^6,2^7,2^8],[1 2],iid=iid,rds=rds,rls=rls)
+fig = qmcscatter!([1,2^6,2^7,2^8],[1 2],iid=iid,rls=rls,rds_dslms=rds_dslms,rds_owen=rds_owen)
 save(joinpath(PLOTDIR,&quot;seq_comparison.svg&quot;),fig)</code></pre><p><img src="../assets/seq_comparison.svg" alt="image"/></p><h3 id="MC-vs-QMC"><a class="docs-heading-anchor" href="#MC-vs-QMC">MC vs QMC</a><a id="MC-vs-QMC-1"></a><a class="docs-heading-anchor-permalink" href="#MC-vs-QMC" title="Permalink"></a></h3><p>We also need to be </p><pre><code class="language-julia hljs">using Distributions
 using LinearAlgebra</code></pre><pre><code class="language-julia hljs">m = 16
 r = 100
 seed = 7
 n = 2^m
 s,mu = 7,-11.05684907978818
-rseqs = [IIDU01Seq(s,seed),RandomShift(LatticeSeqB2(s),r,seed),RandomDigitalShift(DigitalSeqB2G(s),r,seed)]
+rseqs = [IIDU01Seq(s,seed),RandomShift(LatticeSeqB2(s),r,seed),RandomDigitalShift(DigitalSeqB2G(LinearMatrixScramble(s)),r,seed)]
 xsets = [
     [Next(rseqs[1],n) for k=1:r],
     NextR(rseqs[2],n),
@@ -358,4 +454,4 @@ for i=1:7 vlines!(ax,i/8,color=JULIA4LOGOCOLORS[3],alpha=1); hlines!(ax,i/8,colo
 for i=1:3 vlines!(ax,i/4,color=JULIA4LOGOCOLORS[2],alpha=1); hlines!(ax,i/4,color=JULIA4LOGOCOLORS[2],alpha=1) end 
 for i=1:1 vlines!(ax,i/2,color=JULIA4LOGOCOLORS[1],alpha=1); hlines!(ax,i/2,color=JULIA4LOGOCOLORS[1],alpha=1) end 
 hidespines!(ax); hidedecorations!(ax); hidexdecorations!(ax,grid = false); hideydecorations!(ax, ticks = false)
-save(joinpath(PLOTDIR,&quot;logo.svg&quot;),fig)</code></pre><p><img src="../assets/logo.svg" alt="image"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.25 on <span class="colophon-date" title="Monday 24 July 2023 16:18">Monday 24 July 2023</span>. Using Julia version 1.9.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+save(joinpath(PLOTDIR,&quot;logo.svg&quot;),fig)</code></pre><p><img src="../assets/logo.svg" alt="image"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.25 on <span class="colophon-date" title="Monday 24 July 2023 21:00">Monday 24 July 2023</span>. Using Julia version 1.9.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
