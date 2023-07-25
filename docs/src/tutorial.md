@@ -29,7 +29,7 @@ using QMCGenerators
 
 ## Common Usage
 
-Often we just want to generate a single randomized quasi-random sequence. For example, to generate the first $4$ points of a $3$ dimensional lattice with $1$ random shift with seed $7$
+Often we just want to generate a single randomized quasi-random sequence. For example, to generate the first $4$ points of a $3$ dimensional lattice with 1 random shift with seed 7
 
 ```jldoctest
 Next(RandomShift(LatticeSeqB2(3),1,7),4)
@@ -171,8 +171,6 @@ Reset!(ls)
 
 ### Randomized Sequences 
 
-A comparison of randomization routines on an example problem is given in the [MC vs QMC](@ref) section. 
-
 A random shift may be applied to Lattice sequences with the API shown in the [Common Usage](@ref) section.
 
 Digital sequences have multiple randomization options available.
@@ -225,7 +223,7 @@ Next(rds,4)
     ``` 
     A digital shift or Owen scramble should be applied to the digital sequence with LMS in order to randomize the sequence. 
 
-Linear matrix scrambling is applied directly to the generating matrix of a digital sequence e.g. the following code applies an LMS to the first 3 dimensions of the default generating matrix with seed 7.
+Linear matrix scrambling is applied directly to the generating matrix of a digital sequence e.g. the following code applies an LMS to the first 3 dimensions of the default generating matrix with seed 11.
     
 ```jldoctest
 rds = LinearMatrixScramble(3,11)

@@ -196,7 +196,7 @@ mutable struct BTree
     left::Union{Nothing,BTree}
     right::Union{Nothing,BTree}
 end
-BTree(left::BTree,right::BTree) = BTree(nothing,nothing,left,right) # only for root node
+BTree(left::BTree,right::BTree) = BTree(nothing,nothing,left,right)
 BTree(rbits::BigInt,xb::BigInt) = BTree(rbits,xb,nothing,nothing)
 BTree(rbits::Bool) = BTree(rbits,nothing,nothing,nothing)
 BTree() = BTree(nothing,nothing,nothing,nothing)
@@ -329,5 +329,3 @@ function FirstLinear(rds::RandomOwenScramble,m::Int64)
     rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
     FirstRLinear(rds,m)[1]
 end
-
-# consolidate repeated functions
