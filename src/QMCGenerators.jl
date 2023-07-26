@@ -6,10 +6,11 @@ import CairoMakie
 using LaTeXStrings
 
 include("util.jl")
+export rm1bit,bitreverse,spawn
 
 include("digitalseqb2g_default_gmatrix.jl")
 include("digitalseqb2g.jl")
-export DigitalSeqB2G,RandomOwenScramble,LinearMatrixScramble,RandomDigitalShift,BinaryToFloat64,NextBinary,NextRBinary,FirstRLinearBinary,FirstLinearBinary
+export LinearMatrixScramble,DigitalSeqB2G,RandomDigitalShift,RandomOwenScramble,BinaryToFloat64,NextRBinary,FirstRLinearBinary
 
 include("latticeseqb2_default_gvector.jl")
 include("latticeseqb2.jl")
@@ -19,7 +20,7 @@ include("iidu01seq.jl")
 export IIDU01Seq
 
 include("common.jl")
-export Next,NextR,Reset!,FirstRLinear,FirstLinear
+export Reset!,Next,NextR,NextBinary,FirstLinear,BinaryToFloat64,NextBinary,FirstLinearBinary
 
 include("plots.jl")
 export qmcscatter!,JULIA4LOGOCOLORS

@@ -1,6 +1,6 @@
-Next(seq::Union{IIDU01Seq,LatticeSeqB2,DigitalSeqB2G}) = Next(seq,1)[1,:]
-
 Reset!(rseq::Union{RandomShift,RandomDigitalShift,RandomOwenScramble}) = Reset!(rseq.seq)
+
+Next(seq::Union{IIDU01Seq,LatticeSeqB2,DigitalSeqB2G}) = Next(seq,1)[1,:]
 
 NextR(rseq::Union{RandomShift,RandomDigitalShift,RandomOwenScramble}) = NextR(rseq,1)
 
