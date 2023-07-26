@@ -226,9 +226,11 @@ function RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,rngs::Matrix{Xoshiro})
     RandomOwenScramble("Rand Owen Scramble: "*seq.name,seq,r,rngs,scrambles,t,t-seq.t,recipd)
 end
 
-RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,seed::Int64) = RandomOwenScramble(seq,r,[Xoshiro(seed+i*seq.s+j) for i=0:r-1,j=0:seq.s-1]) # no ideal, but how to spawn independent RNG streams? 
+RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,rng::Xoshiro) = RandomOwenScramble(seq,r,reshape(spawn(rng,r*seq.s),r,seq.s))
 
-RandomOwenScramble(seq::DigitalSeqB2G,r::Int64) = RandomOwenScramble(seq,r,[Xoshiro() for i=0:r-1,j=0:seq.s-1]) # ideally use independent streams
+RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,seed::Int64) = RandomOwenScramble(seq,r,Xoshiro(seed))
+
+RandomOwenScramble(seq::DigitalSeqB2G,r::Int64) = RandomOwenScramble(seq,r,Xoshiro())
 
 RandomOwenScramble(seq::DigitalSeqB2G) = RandomOwenScramble(seq,1)
 

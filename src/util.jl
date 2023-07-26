@@ -12,6 +12,11 @@ function jump!(rng::Xoshiro) # https://discourse.julialang.org/t/how-to-spawn-ch
     rng.s0,rng.s1,rng.s2,rng.s3 = s0,s1,s2,s3
     return rng
 end
-spawn(rng::Xoshiro)  = jump!(copy(rng))
+spawn(rng::Xoshiro) = jump!(copy(rng))
+function spawn(rng::Xoshiro,n::Int64)
+    rngs = Vector{Xoshiro}(undef,n)
+    for i=1:n rngs[i] = rng = spawn(rng) end 
+    return rngs 
+end
 
 bitreverse(v::BigInt,pad::Int64) = parse(BigInt,reverse(string(v,base=2,pad=pad)),base=2)

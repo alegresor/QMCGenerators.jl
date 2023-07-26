@@ -9,7 +9,7 @@ end
 
 IIDU01Seq(s::Int64,rngs::Vector{Xoshiro}) = IIDU01Seq("IID Uniform01 Seq",s,-1,zeros(Float64,s),rngs,vcat([[rngs[j].s0,rngs[j].s1,rngs[j].s2,rngs[j].s3] for j=1:s]'...))
 
-IIDU01Seq(s::Int64,rng::Xoshiro) = IIDU01Seq(s,vcat(rng,[spawn(rng) for j=1:s-1]))
+IIDU01Seq(s::Int64,rng::Xoshiro) = IIDU01Seq(s,spawn(rng,s))
 
 IIDU01Seq(s::Int64,seed::Int64) = IIDU01Seq(s,Xoshiro(seed))
 
