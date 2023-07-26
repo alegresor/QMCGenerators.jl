@@ -20,3 +20,5 @@ function spawn(rng::Xoshiro,n::Int64)
 end
 
 bitreverse(v::BigInt,pad::Int64) = parse(BigInt,reverse(string(v,base=2,pad=pad)),base=2)
+
+BinaryToFloat64(xb::BigInt,recipd::Union{Float64,BigFloat}) = convert.(Float64,recipd*xb)

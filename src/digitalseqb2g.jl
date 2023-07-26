@@ -85,28 +85,23 @@ function Reset!(seq::DigitalSeqB2G)
     return 
 end 
 
-function NextBinary!(seq::DigitalSeqB2G)
-    seq.k += 1
-    seq.k == seq.n && throw(DomainError(seq.k,"already generated maximum number of points"))
-    if seq.k==0 return end 
-    ctz = ndigits(((seq.k ⊻ (seq.k-1))+1) >> 1, base=2) - 1
-    seq.cur .⊻= seq.Csr[:,(ctz+1)]
-end
-
 function NextBinary(seq::DigitalSeqB2G,n::Int64)
     xb = zeros(BigInt,n,seq.s)
     for i=1:n
-        NextBinary!(seq)
+        seq.k += 1
+        seq.k == seq.n && throw(DomainError(seq.k,"already generated maximum number of points"))
+        if seq.k ==0 
+            xb[i,:] = seq.cur # zeros
+            continue 
+        end 
+        ctz = ndigits(((seq.k ⊻ (seq.k-1))+1) >> 1, base=2) - 1
+        seq.cur .⊻= seq.Csr[:,(ctz+1)]
         xb[i,:] = seq.cur
     end
     xb
 end
 
-BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},seq::DigitalSeqB2G) = convert.(Float64,seq.recipd*xb)
-
 Next(seq::DigitalSeqB2G,n::Int64) = BinaryToFloat64(NextBinary(seq,n),seq)
-
-Next(seq::DigitalSeqB2G) = Next(seq,1)
 
 function FirstLinearBinary(seq::DigitalSeqB2G,m::Int64)
     @assert seq.k==-1
@@ -144,51 +139,11 @@ RandomDigitalShift(seq::DigitalSeqB2G,r::Int64) = RandomDigitalShift(seq,r,Xoshi
 
 RandomDigitalShift(seq::DigitalSeqB2G) = RandomDigitalShift(seq,1)
 
-function Reset!(rds::RandomDigitalShift) 
-    Reset!(rds.seq)
-end
-
 DigitalShifts(xb::Matrix{BigInt},rds::RandomDigitalShift) = [rds.rshifts[i,:]' .⊻ xb for i=1:rds.r]
 
 NextRBinary(rds::RandomDigitalShift,n::Int64) = DigitalShifts(NextBinary(rds.seq,n).<<rds.tdiff,rds)
 
-NextRBinary(rds::RandomDigitalShift) = NextRBinary(rds,1)
-
-function NextBinary(rds::RandomDigitalShift,n::Int64)
-    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
-    NextRBinary(rds,n)[1]
-end
-
-NextBinary(rds::RandomDigitalShift) = NextBinary(rds,1)
-
-BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},rds::RandomDigitalShift) = convert.(Float64,rds.recipd*xb) # consolidate
-
-BinaryToFloat64(xbs::Vector{Matrix{BigInt}},rds::RandomDigitalShift) = [BinaryToFloat64(xb,rds) for xb in xbs] # consolidate
-
-NextR(rds::RandomDigitalShift,n::Int64) = BinaryToFloat64(NextRBinary(rds,n),rds)
-
-NextR(rds::RandomDigitalShift) = NextR(rds,1)
-
-function Next(rds::RandomDigitalShift,n)
-    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
-    NextR(rds,n)[1]
-end
-
-Next(rds::RandomDigitalShift) = Next(rds,1)
-
 FirstRLinearBinary(rds::RandomDigitalShift,m::Int64) = DigitalShifts(FirstLinearBinary(rds.seq,m).<<rds.tdiff,rds)
-
-function FirstLinearBinary(rds::RandomDigitalShift,m::Int64)
-    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
-    FirstRLinearBinary(rds,m)[1]
-end 
-
-FirstRLinear(rds::RandomDigitalShift,m::Int64) = BinaryToFloat64(FirstRLinearBinary(rds,m),rds)
-
-function FirstLinear(rds::RandomDigitalShift,m::Int64)
-    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
-    FirstRLinear(rds,m)[1]
-end
 
 mutable struct BTree
     rbits::Union{Nothing,BigInt,Bool}
@@ -198,7 +153,6 @@ mutable struct BTree
 end
 BTree(left::BTree,right::BTree) = BTree(nothing,nothing,left,right)
 BTree(rbits::BigInt,xb::BigInt) = BTree(rbits,xb,nothing,nothing)
-BTree(rbits::Bool) = BTree(rbits,nothing,nothing,nothing)
 BTree() = BTree(nothing,nothing,nothing,nothing)
 
 mutable struct RandomOwenScramble
@@ -233,10 +187,6 @@ RandomOwenScramble(seq::DigitalSeqB2G,r::Int64,seed::Int64) = RandomOwenScramble
 RandomOwenScramble(seq::DigitalSeqB2G,r::Int64) = RandomOwenScramble(seq,r,Xoshiro())
 
 RandomOwenScramble(seq::DigitalSeqB2G) = RandomOwenScramble(seq,1)
-
-function Reset!(rds::RandomOwenScramble) 
-    Reset!(rds.seq)
-end
 
 function GetScrambleScalar(xb::BigInt,t::Int64,scramble::BTree,rng::Xoshiro)
     if scramble.xb === nothing # branch node, typeof(scramble.rbits) == Bool
@@ -294,40 +244,4 @@ end
 
 NextRBinary(rds::RandomOwenScramble,n::Int64) = OwenScramble(rds,NextBinary(rds.seq,n),n)
 
-NextRBinary(rds::RandomOwenScramble) = NextRBinary(rds,1)
-
-function NextBinary(rds::RandomOwenScramble,n::Int64)
-    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
-    NextRBinary(rds,n)[1]
-end
-
-NextBinary(rds::RandomOwenScramble) = NextBinary(rds,1)
-
-BinaryToFloat64(xb::Union{BigInt,Vector{BigInt},Matrix{BigInt}},rds::RandomOwenScramble) = convert.(Float64,rds.recipd*xb) # consolidate
-
-BinaryToFloat64(xbs::Vector{Matrix{BigInt}},rds::RandomOwenScramble) = [BinaryToFloat64(xb,rds) for xb in xbs] # consolidate
-
-NextR(rds::RandomOwenScramble,n::Int64) = BinaryToFloat64(NextRBinary(rds,n),rds)
-
-NextR(rds::RandomOwenScramble) = NextR(rds,1)
-
-function Next(rds::RandomOwenScramble,n)
-    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
-    NextR(rds,n)[1]
-end
-
-Next(rds::RandomOwenScramble) = Next(rds,1)
-
 FirstRLinearBinary(rds::RandomOwenScramble,m::Int64) = OwenScramble(rds,FirstLinearBinary(rds.seq,m),2^m)
-
-function FirstLinearBinary(rds::RandomOwenScramble,m::Int64)
-    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
-    FirstRLinearBinary(rds,m)[1]
-end 
-
-FirstRLinear(rds::RandomOwenScramble,m::Int64) = BinaryToFloat64(FirstRLinearBinary(rds,m),rds)
-
-function FirstLinear(rds::RandomOwenScramble,m::Int64)
-    rds.r != 1 && throw(DomainError(rds.r,"Next requires 1 randomization"))
-    FirstRLinear(rds,m)[1]
-end
