@@ -1,11 +1,11 @@
 module QMCGenerators
 
 import DelimitedFiles: readdlm
-import Random: Xoshiro,MersenneTwister,seed!
+import Random: Xoshiro
 import CairoMakie
 using LaTeXStrings
 
-bitreverse(v::BigInt,pad::Int64) = parse(BigInt,reverse(string(v,base=2,pad=pad)),base=2)
+include("util.jl")
 
 include("digitalseqb2g_default_gmatrix.jl")
 include("digitalseqb2g.jl")
@@ -18,6 +18,7 @@ export LatticeSeqB2,RandomShift
 include("iidu01seq.jl")
 export IIDU01Seq
 
+include("common.jl")
 export Next,NextR,Reset!,FirstRLinear,FirstLinear
 
 include("plots.jl")

@@ -715,51 +715,61 @@ These may be converted to floats as before.
 
 ### IID Standard Uniform Generator
 
-We provide an IID $\mathcal{U}[0,1]^s$ generator with the same API as Lattice and digital sequences. This is a wrapper around [`Random.MersenneTwister`](https://docs.julialang.org/en/v1/stdlib/Random/#Random.MersenneTwister).
+We provide an IID $\mathcal{U}[0,1]^s$ generator with the same API as Lattice and digital sequences. This is a wrapper around [`Random.Xoshiro`](https://docs.julialang.org/en/v1/stdlib/Random/#Random.Xoshiro).
 
 For reproducibility, you may provide a seed.
 
 ```jldoctest iidu
-iiduseq = IIDU01Seq(3,7)
-Next(iiduseq,4)
+iiduseq2 = IIDU01Seq(2,7)
+Next(iiduseq2,4)
 # output
-4×3 Matrix{Float64}:
- 0.812439   0.654977  0.489613
- 0.0787595  0.581591  0.258053
- 0.196465   0.193925  0.842951
- 0.66193    0.401352  0.635904
-```
-```jldoctest iidu
-Reset!(iiduseq)
-Next(iiduseq,4)
-# output
-4×3 Matrix{Float64}:
- 0.812439   0.654977  0.489613
- 0.0787595  0.581591  0.258053
- 0.196465   0.193925  0.842951
- 0.66193    0.401352  0.635904
+4×2 Matrix{Float64}:
+ 0.243795  0.0109452
+ 0.719182  0.692198
+ 0.810814  0.989369
+ 0.465797  0.792208
 ```
 
-The seed gets used to construct a `MersenneTwister`. After
-
-```julia
-using Random: MersenneTwister
-```
-
-You may pass also pass a `MersenneTwister` instance directly.
+Resetting the generator has expected syntax
 
 ```jldoctest iidu
-iiduseq = IIDU01Seq(3,MersenneTwister(7))
-Next(iiduseq,4)
+Reset!(iiduseq2)
+Next(iiduseq2,4)
 # output
-4×3 Matrix{Float64}:
- 0.812439   0.654977  0.489613
- 0.0787595  0.581591  0.258053
- 0.196465   0.193925  0.842951
- 0.66193    0.401352  0.635904
+4×2 Matrix{Float64}:
+ 0.243795  0.0109452
+ 0.719182  0.692198
+ 0.810814  0.989369
+ 0.465797  0.792208
+```
+```jldoctest iidu
+Next(iiduseq2,4)
+# output
+4×2 Matrix{Float64}:
+ 0.943048   0.787362
+ 0.0635932  0.00539685
+ 0.880004   0.183229
+ 0.844925   0.200843
 ```
 
-Providing neither a seed nor `MersenneTwister` uses `MersenneTwister()`.
+The generator is extensible in the number of points and dimension 
+
+```jldoctest iidu
+iiduseq3 = IIDU01Seq(3,7)
+Next(iiduseq3,8)
+# output
+8×3 Matrix{Float64}:
+ 0.243795   0.0109452   0.0109452
+ 0.719182   0.692198    0.692198
+ 0.810814   0.989369    0.989369
+ 0.465797   0.792208    0.792208
+ 0.943048   0.787362    0.787362
+ 0.0635932  0.00539685  0.00539685
+ 0.880004   0.183229    0.183229
+ 0.844925   0.200843    0.200843
+```
+
+As with other generators, a seed is not necessary
 
 ```jldoctest iidu
 iiduseq = IIDU01Seq(3)
