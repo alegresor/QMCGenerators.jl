@@ -22,11 +22,3 @@ end
 bitreverse(v::BigInt,pad::Int64) = parse(BigInt,reverse(string(v,base=2,pad=pad)),base=2)
 
 BinaryToFloat64(xb::Union{UInt64,UInt128,BigInt},recipd::Union{Float64,BigFloat}) = convert.(Float64,recipd*xb)
-
-function rm1bit(i::Union{Int64,BigInt})
-    b = 0
-    while true
-        if Bool((i>>b)&1) return b+1 end 
-        b += 1
-    end
-end 

@@ -89,20 +89,32 @@ function Reset!(seq::DigitalSeqB2G)
     return 
 end 
 
-function NextBinary(seq::DigitalSeqB2G,n::Int64)
-    xb = zeros(seq.TInt,n,seq.s)
+function NextBinaryLow(b::Int64,xb::Union{Matrix{UInt64},Matrix{UInt128},Matrix{BigInt}},n::Int64,k::Int64,Csr::Union{Matrix{UInt64},Matrix{UInt128},Matrix{BigInt}},cur::Union{Vector{UInt64},Vector{UInt128},Vector{BigInt}})
     for i=1:n
-        seq.k += 1
-        seq.k == seq.n && throw(DomainError(seq.k,"already generated maximum number of points"))
-        if seq.k ==0 
-            xb[i,:] = seq.cur # zeros
-            continue 
+        k += 1
+        b = 0
+        while true
+            if Bool((k>>b)&1) break end 
+            b += 1
         end
-        ctz = ndigits(((seq.k ⊻ (seq.k-1))+1) >> 1, base=2) - 1
-        seq.cur .⊻= seq.Csr[:,(ctz+1)]
-        xb[i,:] = seq.cur
+        xb[i,:] = cur .⊻= Csr[:,b+1]
     end
     xb
+end
+
+function NextBinary(seq::DigitalSeqB2G,n::Int64)
+    (seq.k+n)>=seq.n && throw(DomainError(seq.k,"Generating $n more points will exceed the maximum supported points $(seq.n)"))
+    xb = zeros(seq.TInt,n,seq.s)
+    i1 = 1
+    if seq.k == -1
+        seq.k = 0
+        n -= 1
+        i1 = 2
+    end
+    xb[i1:end,:] = NextBinaryLow(1,xb[i1:end,:],n,seq.k,seq.Csr,seq.cur)
+    seq.k += n 
+    seq.cur .= xb[end,:]
+    xb 
 end
 
 Next(seq::DigitalSeqB2G,n::Int64) = BinaryToFloat64(NextBinary(seq,n),seq)

@@ -6,7 +6,7 @@ import CairoMakie
 using LaTeXStrings
 
 include("util.jl")
-export rm1bit,bitreverse,spawn
+export bitreverse,spawn
 
 include("digitalseqb2g_default_gmatrix.jl")
 include("digitalseqb2g.jl")
