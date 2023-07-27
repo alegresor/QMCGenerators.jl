@@ -1,13 +1,12 @@
 mutable struct LatticeSeqB2
-    name::String
-    s::Int64 # dimension 
-    z::Union{Vector{UInt16},Vector{UInt32},Vector{UInt64},Vector{UInt128},Vector{BigInt}}
-    m::Int64 # 2^m points supported
-    n::Int64 # 2^m
-    scale::Union{BigFloat,Float64} # 2^(-m)
+    const name::String
+    const s::Int64 # dimension 
+    const z::Union{Vector{UInt16},Vector{UInt32},Vector{UInt64},Vector{UInt128},Vector{BigInt}}
+    const m::Int64 # 2^m points supported
+    const n::Int64 # 2^m
+    const scale::Union{BigFloat,Float64} # 2^(-m)
+    const TInt::DataType
     k::Int64 # index in the sequence
-    gcval::Union{UInt16,UInt32,UInt64,UInt128,BigInt}
-    TInt::DataType
 end
 
 function LatticeSeqB2(s::Int64,z::Vector{BigInt},m::Int64)
@@ -21,7 +20,7 @@ function LatticeSeqB2(s::Int64,z::Vector{BigInt},m::Int64)
     elseif m<=128 TInt = UInt128 
     else TInt = BigInt end
     z = convert.(TInt,z[1:s])
-    LatticeSeqB2("Lattice Seq B2",s,z,m,n,scale,-1,TInt(0),TInt)
+    LatticeSeqB2("Lattice Seq B2",s,z,m,n,scale,TInt,-1)
 end
 
 LatticeSeqB2(s::Int64,path::String,m::Int64) = LatticeSeqB2(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/LATSEQ/",path)),BigInt)[:,1],m)
@@ -30,21 +29,15 @@ LatticeSeqB2(s::Int64) = LatticeSeqB2(s,DEFAULT_LATTICESEQB2_GVECTOR,20)
 
 function Reset!(seq::LatticeSeqB2)
     seq.k = -1
-    seq.gcval = seq.TInt(0)
     return
 end
 
 function Next(seq::LatticeSeqB2,n::Int64)
-    x = zeros(Float64,n,seq.s)
-    (seq.k+n) >= seq.n && throw(DomainError(seq.k,"Generating n more points will exceed the maximum number of points supported by the sequence.")) 
-    for i=1:n
-        seq.k += 1
-        if seq.k==0 x[i,:] = zeros(Float64,seq.s); continue end
-        seq.gcval ⊻= seq.TInt(1)<<(seq.m-rm1bit(seq.k))
-        recip = seq.gcval*seq.scale
-        x[i,:] = convert.(Float64,(recip.*seq.z).%1)
-    end 
-    x
+    nvec = range(seq.k+1,seq.k+n)
+    p2s = 2 .^ ceil.(log2.(nvec.+1))
+    fracs = (2 .* (p2s.-nvec) .- 1) ./ p2s
+    seq.k += n
+    convert.(Float64,(fracs*seq.z').%1)
 end 
 
 function FirstLinear(seq::LatticeSeqB2,m::Int64)

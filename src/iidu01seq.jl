@@ -1,12 +1,12 @@
 mutable struct IIDU01Seq
-    name::String 
-    s::Int64 # dimension 
+    const name::String 
+    const s::Int64 # dimension 
+    const rngs::Vector{Xoshiro}
+    const states::Matrix{UInt64}
     k::Int64 # index in the sequence
-    rngs::Vector{Xoshiro}
-    states::Matrix{UInt64}
 end
 
-IIDU01Seq(s::Int64,rngs::Vector{Xoshiro}) = IIDU01Seq("IID Uniform01 Seq",s,-1,rngs,vcat([[rngs[j].s0,rngs[j].s1,rngs[j].s2,rngs[j].s3] for j=1:s]'...))
+IIDU01Seq(s::Int64,rngs::Vector{Xoshiro}) = IIDU01Seq("IID Uniform01 Seq",s,rngs,vcat([[rngs[j].s0,rngs[j].s1,rngs[j].s2,rngs[j].s3] for j=1:s]'...),-1)
 
 IIDU01Seq(s::Int64,rng::Xoshiro) = IIDU01Seq(s,spawn(rng,s))
 

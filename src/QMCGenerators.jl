@@ -20,7 +20,7 @@ include("iidu01seq.jl")
 export IIDU01Seq
 
 include("common.jl")
-export Reset!,Next,NextR,NextBinary,FirstLinear,BinaryToFloat64,NextBinary,FirstLinearBinary
+export Reset!,Next,NextR,NextBinary,FirstLinear,BinaryToFloat64,NextBinary,FirstLinearBinary,FirstRLinear
 
 include("plots.jl")
 export qmcscatter!,JULIA4LOGOCOLORS
