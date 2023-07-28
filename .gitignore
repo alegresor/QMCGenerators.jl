@@ -6,3 +6,4 @@ docs/src/assets/*.svg
 
 ags.md
 tmp.jl
+ignore/

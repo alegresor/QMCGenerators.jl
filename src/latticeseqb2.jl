@@ -29,7 +29,7 @@ function Reset!(seq::LatticeSeqB2)
 end
 
 function Next(seq::LatticeSeqB2,n::Int64)
-    (seq.k+n)>=seq.n && throw(DomainError(seq.k,"Generating $n more points will exceed the maximum supported points $(seq.n)"))
+    (seq.k+n)>=seq.n && throw(DomainError(n,"Generating $n more points will exceed the maximum supported points $(seq.n)"))
     nvec = range(seq.k+1,seq.k+n)
     p2s = 2 .^ ceil.(log2.(nvec.+1))
     fracs = (2 .* (p2s.-nvec) .- 1) ./ p2s
@@ -40,7 +40,7 @@ end
 function FirstLinear(seq::LatticeSeqB2,m::Int64)
     @assert seq.k == -1 
     n = 2^m
-    (seq.k+n)>=seq.n && throw(DomainError(seq.k,"Generating $n more points will exceed the maximum supported points $(seq.n)"))
+    (seq.k+n)>=seq.n && throw(DomainError(n,"Generating $n more points will exceed the maximum supported points $(seq.n)"))
     convert.(Float64,(range(0,n-1)*(seq.z'./n)).%1)
 end 
 
