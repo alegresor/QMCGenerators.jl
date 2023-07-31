@@ -154,9 +154,30 @@ RandomDigitalShift(seq::DigitalSeqB2G) = RandomDigitalShift(seq,1)
 
 DigitalShifts(xb::Matrix{UInt64},rds::RandomDigitalShift) = [rds.rshifts[i,:]' .⊻ xb for i=1:rds.r]
 
-NextRBinary(rds::RandomDigitalShift,n::Int64) = DigitalShifts(NextBinary(rds.seq,n).<<rds.tdiff,rds)
+function NextRLowRandomDigitalShift(tdiff::Int64,s::Int64,r::Int64,n::Int64,xu::Matrix{UInt64},xr::Vector{Matrix{UInt64}},rshifts::Matrix{UInt64})
+    for k=1:r 
+        for j=1:s 
+            for i=1:n
+                xr[k][i,j] = (xu[i,j]<<tdiff) ⊻ rshifts[k,j]
+            end 
+        end 
+    end 
+end
 
-FirstRLinearBinary(rds::RandomDigitalShift,m::Int64) = DigitalShifts(FirstLinearBinary(rds.seq,m).<<rds.tdiff,rds)
+function NextRBinary(rds::RandomDigitalShift,n::Int64)
+    xu = NextBinary(rds.seq,n)
+    xr = [zeros(UInt64,n,rds.seq.s) for k=1:rds.r]
+    NextRLowRandomDigitalShift(rds.tdiff,rds.seq.s,rds.r,n,xu,xr,rds.rshifts)
+    xr
+end
+
+function FirstRLinearBinary(rds::RandomDigitalShift,m::Int64)
+    n = 2^m
+    xu = FirstLinearBinary(rds.seq,m)
+    xr = [zeros(UInt64,n,rds.seq.s) for k=1:rds.r]
+    NextRLowRandomDigitalShift(rds.tdiff,rds.seq.s,rds.r,n,xu,xr,rds.rshifts)
+    xr
+end
 
 mutable struct BTree
     rbits::Union{Nothing,UInt64,Bool}
