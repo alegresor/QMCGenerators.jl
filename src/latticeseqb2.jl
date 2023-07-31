@@ -28,13 +28,19 @@ function Reset!(seq::LatticeSeqB2)
     return
 end
 
-function Next(seq::LatticeSeqB2,n::Int64)
-    (seq.k+n)>=seq.n && throw(DomainError(n,"Generating $n more points will exceed the maximum supported points $(seq.n)"))
-    nvec = range(seq.k+1,seq.k+n)
+function NextLow(xb::Matrix{Float64},k::Int64,n::Int64,z::Union{Vector{UInt64},Vector{UInt128},Vector{BigInt}})
+    nvec = range(k+1,k+n)
     p2s = 2 .^ ceil.(log2.(nvec.+1))
     fracs = (2 .* (p2s.-nvec) .- 1) ./ p2s
+    xb[:,:] .= convert.(Float64,(fracs*z').%1)
+end 
+
+function Next(seq::LatticeSeqB2,n::Int64)
+    (seq.k+n)>=seq.n && throw(DomainError(n,"Generating $n more points will exceed the maximum supported points $(seq.n)"))
+    xb::Matrix{Float64} = zeros(Float64,n,seq.s)
+    NextLow(xb,seq.k,n,seq.z)
     seq.k += n
-    convert.(Float64,(fracs*seq.z').%1)
+    xb
 end 
 
 function FirstLinear(seq::LatticeSeqB2,m::Int64)
