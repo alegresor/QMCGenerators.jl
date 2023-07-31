@@ -17,9 +17,9 @@ function FirstLinear(rseq::Union{RandomShift,RandomDigitalShift,RandomOwenScramb
     FirstRLinear(rseq,n)[1]
 end
 
-BinaryToFloat64(xb::Union{UInt64,Vector{UInt64},Matrix{UInt64},UInt128,Vector{UInt128},Matrix{UInt128},BigInt,Vector{BigInt},Matrix{BigInt}},seq::Union{DigitalSeqB2G,RandomDigitalShift,RandomOwenScramble}) = BinaryToFloat64.(xb,seq.recipd)
+BinaryToFloat64(xb::Union{UInt64,Vector{UInt64},Matrix{UInt64}},seq::Union{DigitalSeqB2G,RandomDigitalShift,RandomOwenScramble}) = BinaryToFloat64.(xb,seq.recipd)
 
-BinaryToFloat64(xbs::Union{Vector{Matrix{UInt64}},Vector{Matrix{UInt128}},Vector{Matrix{BigInt}}},rds::Union{RandomDigitalShift,RandomOwenScramble}) = [BinaryToFloat64(xb,rds) for xb in xbs]
+BinaryToFloat64(xbs::Vector{Matrix{UInt64}},rds::Union{RandomDigitalShift,RandomOwenScramble}) = [BinaryToFloat64(xb,rds) for xb in xbs]
 
 NextRBinary(rds::Union{RandomDigitalShift,RandomOwenScramble}) = NextRBinary(rds,1)
 
