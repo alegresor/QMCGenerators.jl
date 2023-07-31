@@ -81,12 +81,27 @@ RandomShift(seq::LatticeSeqB2,r::Int64) = RandomShift(seq,r,Xoshiro())
 
 RandomShift(seq::LatticeSeqB2) = RandomShift(seq,1)
 
+function NextRLowRandomShift(s::Int64,r::Int64,n::Int64,xu::Matrix{Float64},xr::Vector{Matrix{Float64}},rshifts::Matrix{Float64})
+    for k=1:r 
+        for j=1:s 
+            for i=1:n
+                xr[k][i,j] = (xu[i,j] + rshifts[k,j])%1
+            end 
+        end 
+    end 
+end
+
 function NextR(rls::RandomShift,n::Int64)
     xu = Next(rls.seq,n)
-    [(xu.+rls.rshifts[i,:]').%1 for i=1:rls.r]
+    xr = [zeros(Float64,n,rls.seq.s) for k=1:rls.r]
+    NextRLowRandomShift(rls.seq.s,rls.r,n,xu,xr,rls.rshifts)
+    xr
 end 
 
 function FirstRLinear(rls::RandomShift,m::Int64)
+    n = 2^m
     xu = FirstLinear(rls.seq,m)
-    [(xu.+rls.rshifts[i,:]').%1 for i=1:rls.r]
+    xr = [zeros(Float64,n,rls.seq.s) for k=1:rls.r]
+    NextRLowRandomShift(rls.seq.s,rls.r,n,xu,xr,rls.rshifts)
+    xr
 end
