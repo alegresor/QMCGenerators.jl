@@ -143,7 +143,7 @@ Reset!(ds)
 # output
 ```
 
-These functions can also be applied to Lattices 
+These functions can also be applied to lattices 
 
 ```jldoctest tut_ls
 ls = LatticeSeqB2(5)
@@ -171,7 +171,7 @@ Reset!(ls)
 
 ### Randomized Sequences 
 
-A random shift may be applied to Lattice sequences with the API shown in the [Common Usage](@ref) section.
+A random shift may be applied to lattice sequences with the API shown in the [Common Usage](@ref) section.
 
 Digital sequences have multiple randomization options available.
 
@@ -354,7 +354,7 @@ Next(ds,4)
  0.251783  0.983926  0.233902
 ```
 
-Alternative Lattice generating vectors are available in [this directory](https://bitbucket.org/dnuyens/qmc-generators/src/master/LATSEQ/). For Lattices, after supplying the path you also need to pass the $m$ value in the file name
+Alternative lattice generating vectors are available in [this directory](https://bitbucket.org/dnuyens/qmc-generators/src/master/LATSEQ/). For Lattices, after supplying the path you also need to pass the $m$ value in the file name
 
 ```jldoctest
 ls = LatticeSeqB2(3,"exod8_base2_m13.txt",13)
@@ -715,7 +715,7 @@ These may be converted to floats as before.
 
 ### IID Standard Uniform Generator
 
-We provide an IID $\mathcal{U}[0,1]^s$ generator with the same API as Lattice and digital sequences. This is a wrapper around [`Random.Xoshiro`](https://docs.julialang.org/en/v1/stdlib/Random/#Random.Xoshiro).
+We provide an IID $\mathcal{U}[0,1]^s$ generator with the same API as lattice and digital sequences. This is a wrapper around [`Random.Xoshiro`](https://docs.julialang.org/en/v1/stdlib/Random/#Random.Xoshiro).
 
 For reproducibility, you may provide a seed.
 

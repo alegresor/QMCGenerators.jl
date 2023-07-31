@@ -8,7 +8,7 @@ See the [Tutorial](@ref) for instructions on how to use this package.
 
 `QMCGenerators.jl` implements quasi-random (low discrepancy) sequence generators. Quasi-random points are carefully coordinated in a dependent manner to more evenly fill $[0,1]^s$ compared to pseudo-random (independent) points. 
 
-This package implements two flavors of quasi-random sequences: *Lattice* rules and *digital nets*, both in base 2. Independent randomizations may be applied to base sequences via *random shifts for Lattices* and either *random digital shifts*, *random linear matrix scrambles*, and/or *random Owen scrambles* for *digital nets*.  
+This package implements two flavors of quasi-random sequences: *lattice* rules and *digital nets*, both in base 2. Independent randomizations may be applied to base sequences via *random shifts for lattices* and either *random digital shifts*, *random linear matrix scrambles*, and/or *random Owen scrambles* for *digital nets*.  
 
 ![image](./assets/seq_comparison.svg)
 
