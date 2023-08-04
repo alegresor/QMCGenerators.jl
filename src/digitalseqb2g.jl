@@ -53,7 +53,7 @@ mutable struct DigitalSeqB2G
     const n::Int64 # maximum number of supported points
     const recipd::Union{BigFloat,Float64} # multiplication factor
     k::Int64 # index in the sequence
-    cur::Vector{UInt64} # current binary point
+    cur::Vector{UInt64}
 end
 
 function DigitalSeqB2G(s::Int64,Cs::Matrix{BigInt})
@@ -87,9 +87,9 @@ function Reset!(seq::DigitalSeqB2G)
     return 
 end 
 
-function NextBinaryLow(i1::UInt64,s::Int64,xb::Matrix{UInt64},n::Int64,k::Int64,Csr::Matrix{UInt64},cur::Vector{UInt64})
+function NextBinaryLow(i1::Int64,s::Int64,xb::Matrix{UInt64},n::Int64,k::Int64,Csr::Matrix{UInt64},cur::Vector{UInt64})
     b::Int64 = 0
-    for i::UInt64=i1:n
+    for i::Int64=i1:n
         k += 1
         b = 0; while ~Bool((k>>b)&1) b+= 1 end
         for j=1:s xb[i,j] = cur[j] ⊻= Csr[j,b+1] end
@@ -99,7 +99,7 @@ end
 function NextBinary(seq::DigitalSeqB2G,n::Int64)
     (seq.k+n)>=seq.n && throw(DomainError(n,"Generating $n more points will exceed the maximum supported points $(seq.n)"))
     xb::Matrix{UInt64} = zeros(UInt64,n,seq.s)    
-    NextBinaryLow(seq.k==-1 ? UInt64(2) : UInt64(1),seq.s,xb,n,seq.k==-1 ? 0 : seq.k,seq.Csr,seq.cur)
+    NextBinaryLow(seq.k==-1 ? 2 : 1,seq.s,xb,n,seq.k==-1 ? 0 : seq.k,seq.Csr,seq.cur)
     seq.k += n 
     seq.cur .= xb[n,:]
     xb
@@ -109,7 +109,7 @@ Next(seq::DigitalSeqB2G,n::Int64) = BinaryToFloat64(NextBinary(seq,n),seq)
 
 function FirstLinearBinaryLow(s::Int64,xb::Matrix{UInt64},n::Int64,k::Int64,Csr::Matrix{UInt64},cur::Vector{UInt64})
     b::Int64 = 0
-    for i::UInt64=1:n-1
+    for i::Int64=1:n-1
         igc = (i⊻(i>>1))+1
         k += 1
         b = 0; while ~Bool((k>>b)&1) b+= 1 end
@@ -117,8 +117,8 @@ function FirstLinearBinaryLow(s::Int64,xb::Matrix{UInt64},n::Int64,k::Int64,Csr:
     end
 end
 
-function FirstLinearBinary(seq::DigitalSeqB2G,n::Int64)
-    @assert ispow2(n)
+function FirstLinearBinary(seq::DigitalSeqB2G,m::Int64)
+    n = 2^m
     n>=seq.n && throw(DomainError(n,"Generating $n more points will exceed the maximum supported points $(seq.n)"))
     @assert seq.k==-1
     xb::Matrix{UInt64} = zeros(UInt64,n,seq.s)
@@ -127,7 +127,7 @@ function FirstLinearBinary(seq::DigitalSeqB2G,n::Int64)
     xb
 end
 
-FirstLinear(seq::DigitalSeqB2G,n::Int64) = BinaryToFloat64(FirstLinearBinary(seq,n),seq)
+FirstLinear(seq::DigitalSeqB2G,m::Int64) = BinaryToFloat64(FirstLinearBinary(seq,m),seq)
 
 struct RandomDigitalShift
     name::String
@@ -171,8 +171,9 @@ function NextRBinary(rds::RandomDigitalShift,n::Int64)
     xr
 end
 
-function FirstRLinearBinary(rds::RandomDigitalShift,n::Int64)
-    xu = FirstLinearBinary(rds.seq,n)
+function FirstRLinearBinary(rds::RandomDigitalShift,m::Int64)
+    n = 2^m
+    xu = FirstLinearBinary(rds.seq,m)
     xr = [zeros(UInt64,n,rds.seq.s) for k=1:rds.r]
     NextRLowRandomDigitalShift(rds.tdiff,rds.seq.s,rds.r,n,xu,xr,rds.rshifts)
     xr
@@ -277,4 +278,4 @@ end
 
 NextRBinary(rds::RandomOwenScramble,n::Int64) = OwenScramble(rds,NextBinary(rds.seq,n),n)
 
-FirstRLinearBinary(rds::RandomOwenScramble,n::Int64) = OwenScramble(rds,FirstLinearBinary(rds.seq,n),n)
+FirstRLinearBinary(rds::RandomOwenScramble,m::Int64) = OwenScramble(rds,FirstLinearBinary(rds.seq,m),2^m)
