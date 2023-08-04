@@ -56,9 +56,9 @@ Next(ls,4)
  0.25  0.25  0.25  0.25  0.25</code></pre><pre><code class="language-julia hljs">Next(ls,4)
 # output
 4×5 Matrix{Float64}:
- 0.375  0.875  0.375  0.875  0.875
  0.875  0.375  0.875  0.375  0.375
  0.625  0.125  0.625  0.125  0.125
+ 0.375  0.875  0.375  0.875  0.875
  0.125  0.625  0.125  0.625  0.625</code></pre><pre><code class="language-julia hljs">Reset!(ls)
 # output</code></pre><h3 id="Randomized-Sequences"><a class="docs-heading-anchor" href="#Randomized-Sequences">Randomized Sequences</a><a id="Randomized-Sequences-1"></a><a class="docs-heading-anchor-permalink" href="#Randomized-Sequences" title="Permalink"></a></h3><p>A random shift may be applied to lattice sequences with the API shown in the <a href="#Common-Usage">Common Usage</a> section.</p><p>Digital sequences have multiple randomization options available.</p><ul><li><strong>Owen&#39;s scrambling</strong> maximally randomizes a sequence, but is slow to compute. </li></ul><pre><code class="language-julia hljs">rds = RandomOwenScramble(DigitalSeqB2G(3),1,7)
 Next(rds,4)
@@ -192,9 +192,10 @@ Next(ls,4)
  0.0   0.0   0.0
  0.5   0.5   0.5
  0.75  0.75  0.75
- 0.25  0.25  0.25</code></pre><h3 id="Linear-Ordering"><a class="docs-heading-anchor" href="#Linear-Ordering">Linear Ordering</a><a id="Linear-Ordering-1"></a><a class="docs-heading-anchor-permalink" href="#Linear-Ordering" title="Permalink"></a></h3><p>By default, digital sequences are generated in Gray code order. One may generate the first 8 points in linear order via </p><pre><code class="language-julia hljs">n = 8
+ 0.25  0.25  0.25</code></pre><h3 id="Linear-Ordering"><a class="docs-heading-anchor" href="#Linear-Ordering">Linear Ordering</a><a id="Linear-Ordering-1"></a><a class="docs-heading-anchor-permalink" href="#Linear-Ordering" title="Permalink"></a></h3><p>By default, digital sequences are generated in Gray code order. One may generate the first <span>$2^m$</span> points in linear order via </p><pre><code class="language-julia hljs">m = 3
+n = 2^m
 ds = DigitalSeqB2G(4)
-FirstLinear(ds,n)
+FirstLinear(ds,m)
 # output
 8×4 Matrix{Float64}:
  0.0    0.0    0.0    0.0
@@ -214,18 +215,19 @@ FirstLinear(ds,n)
  0.375  0.375  0.625  0.875
  0.875  0.875  0.125  0.375
  0.625  0.125  0.875  0.625
- 0.125  0.625  0.375  0.125</code></pre><p>Similarly, Lattices are by default generated in extensible ordering. A linear ordering is also available </p><pre><code class="language-julia hljs">n = 8
+ 0.125  0.625  0.375  0.125</code></pre><p>Similarly, Lattices are by default generated in extensible ordering. A linear ordering is also available </p><pre><code class="language-julia hljs">m = 3
+n = 2^m 
 ls = LatticeSeqB2(4)
-FirstLinear(ls,n)
+FirstLinear(ls,m)
 # output
 8×4 Matrix{Float64}:
  0.0    0.0    0.0    0.0
- 0.5    0.5    0.5    0.5
- 0.25   0.25   0.25   0.25
- 0.75   0.75   0.75   0.75
  0.125  0.625  0.125  0.625
- 0.625  0.125  0.625  0.125
+ 0.25   0.25   0.25   0.25
  0.375  0.875  0.375  0.875
+ 0.5    0.5    0.5    0.5
+ 0.625  0.125  0.625  0.125
+ 0.75   0.75   0.75   0.75
  0.875  0.375  0.875  0.375</code></pre><p>Compare to the original ordering </p><pre><code class="language-julia hljs">Next(ls,n)
 # output
 8×4 Matrix{Float64}:
@@ -233,19 +235,19 @@ FirstLinear(ls,n)
  0.5    0.5    0.5    0.5
  0.75   0.75   0.75   0.75
  0.25   0.25   0.25   0.25
- 0.375  0.875  0.375  0.875
  0.875  0.375  0.875  0.375
  0.625  0.125  0.625  0.125
+ 0.375  0.875  0.375  0.875
  0.125  0.625  0.125  0.625</code></pre><p>Linear order for randomized sequences has expected syntax </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(LinearMatrixScramble(4,11))
 rds = RandomDigitalShift(ds,1,17)
-FirstLinear(rds,4)
+FirstLinear(rds,2)
 # output
 4×4 Matrix{Float64}:
  0.844967  0.66901    0.686087  0.362606
  0.137878  0.0835059  0.170347  0.651575
  0.702026  0.27229    0.270447  0.917505
  0.283993  0.982671   0.753976  0.0663986</code></pre><pre><code class="language-julia hljs">rds = RandomDigitalShift(ds,2,17)
-xs = FirstRLinear(rds,4)
+xs = FirstRLinear(rds,2)
 xs[1]
 # output
 4×4 Matrix{Float64}:
@@ -259,7 +261,7 @@ xs[1]
  0.313478  0.886583   0.0483536  0.636283
  0.752869  0.695851   0.385852   0.932851
  0.23328   0.0469946  0.90234    0.081319</code></pre><pre><code class="language-julia hljs">rds = RandomOwenScramble(ds,2,17)
-xs = FirstRLinear(rds,4)
+xs = FirstRLinear(rds,2)
 xs[1]
 # output
 4×4 Matrix{Float64}:
@@ -273,102 +275,102 @@ xs[1]
  0.812677  0.683277   0.991765  0.882639
  0.151533  0.86366    0.620386  0.668969
  0.583849  0.0445951  0.385324  0.340111</code></pre><p>For lattices a similar API holds</p><pre><code class="language-julia hljs">rls = RandomShift(LatticeSeqB2(4),2,17)
-xs = FirstRLinear(rls,4)
+xs = FirstRLinear(rls,2)
 xs[1]
 # output
 4×4 Matrix{Float64}:
  0.447971  0.593933   0.190141  0.331784
- 0.947971  0.0939328  0.690141  0.831784
  0.697971  0.843933   0.440141  0.581784
+ 0.947971  0.0939328  0.690141  0.831784
  0.197971  0.343933   0.940141  0.081784</code></pre><pre><code class="language-julia hljs">xs[2]
 # output
 4×4 Matrix{Float64}:
  0.868892  0.697591  0.828991   0.475479
- 0.368892  0.197591  0.328991   0.975479
  0.118892  0.947591  0.0789912  0.725479
- 0.618892  0.447591  0.578991   0.225479</code></pre><h3 id="Binary-Functions-for-Digital-Sequences"><a class="docs-heading-anchor" href="#Binary-Functions-for-Digital-Sequences">Binary Functions for Digital Sequences</a><a id="Binary-Functions-for-Digital-Sequences-1"></a><a class="docs-heading-anchor-permalink" href="#Binary-Functions-for-Digital-Sequences" title="Permalink"></a></h3><p>For digital sequences, we sometimes want the binary representation of points. We can get the binary representations as integers and then convert them to their floating point values as follows </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(3)
+ 0.368892  0.197591  0.328991   0.975479
+ 0.618892  0.447591  0.578991   0.225479</code></pre><h3 id="Binary-Functions-for-Digital-Sequences"><a class="docs-heading-anchor" href="#Binary-Functions-for-Digital-Sequences">Binary Functions for Digital Sequences</a><a id="Binary-Functions-for-Digital-Sequences-1"></a><a class="docs-heading-anchor-permalink" href="#Binary-Functions-for-Digital-Sequences" title="Permalink"></a></h3><p>For digital sequences, we sometimes want the binary representation of points. We can get the binary representations as integers and then convert them to their floating point values as follows </p><pre><code class="language-julia hljs">ds = DigitalSeqB2G(4)
 xb = NextBinary(ds,4)
 # output
-4×3 Matrix{UInt64}:
- 0x0000000000000000  0x0000000000000000  0x0000000000000000
- 0x0000000080000000  0x0000000080000000  0x0000000080000000
- 0x00000000c0000000  0x0000000040000000  0x0000000040000000
- 0x0000000040000000  0x00000000c0000000  0x00000000c0000000</code></pre><pre><code class="language-julia hljs">BinaryToFloat64(xb,ds)
+4×4 Matrix{UInt64}:
+ 0x0000000000000000  0x0000000000000000  …  0x0000000000000000
+ 0x0000000080000000  0x0000000080000000     0x0000000080000000
+ 0x00000000c0000000  0x0000000040000000     0x0000000040000000
+ 0x0000000040000000  0x00000000c0000000     0x00000000c0000000</code></pre><pre><code class="language-julia hljs">BinaryToFloat64(xb,ds)
 # output
-4×3 Matrix{Float64}:
- 0.0   0.0   0.0
- 0.5   0.5   0.5
- 0.75  0.25  0.25
- 0.25  0.75  0.75</code></pre><p>This is also compatible with randomized digital sequences </p><pre><code class="language-julia hljs">Reset!(ds)
+4×4 Matrix{Float64}:
+ 0.0   0.0   0.0   0.0
+ 0.5   0.5   0.5   0.5
+ 0.75  0.25  0.25  0.25
+ 0.25  0.75  0.75  0.75</code></pre><p>This is also compatible with randomized digital sequences </p><pre><code class="language-julia hljs">Reset!(ds)
 rds_single = RandomDigitalShift(ds,1,11)
 xb = NextBinary(rds_single,4)
 # output
-4×3 Matrix{UInt64}:
- 0x001293891708f524  0x0016da39893c2ad5  0x001b9c72840fa196
- 0x000293891708f524  0x0006da39893c2ad5  0x000b9c72840fa196
- 0x000a93891708f524  0x001eda39893c2ad5  0x00139c72840fa196
- 0x001a93891708f524  0x000eda39893c2ad5  0x00039c72840fa196</code></pre><pre><code class="language-julia hljs">BinaryToFloat64(xb,rds_single)
+4×4 Matrix{UInt64}:
+ 0x001293891708f524  0x0016da39893c2ad5  …  0x00167b863bac2dff
+ 0x000293891708f524  0x0006da39893c2ad5     0x00067b863bac2dff
+ 0x000a93891708f524  0x001eda39893c2ad5     0x001e7b863bac2dff
+ 0x001a93891708f524  0x000eda39893c2ad5     0x000e7b863bac2dff</code></pre><pre><code class="language-julia hljs">BinaryToFloat64(xb,rds_single)
 # output
-4×3 Matrix{Float64}:
- 0.58051    0.714139  0.862848
- 0.0805097  0.214139  0.362848
- 0.33051    0.964139  0.612848
- 0.83051    0.464139  0.112848</code></pre><pre><code class="language-julia hljs">Reset!(ds)
+4×4 Matrix{Float64}:
+ 0.58051    0.714139  0.862848  0.702579
+ 0.0805097  0.214139  0.362848  0.202579
+ 0.33051    0.964139  0.612848  0.952579
+ 0.83051    0.464139  0.112848  0.452579</code></pre><pre><code class="language-julia hljs">Reset!(ds)
 rds_multiple = RandomDigitalShift(ds,2,11)
 xbs = NextRBinary(rds_multiple,4)
 xbs[1]
 # output
-4×3 Matrix{UInt64}:
- 0x001293891708f524  0x001b9c72840fa196  0x001b92b4f3a3bb3f
- 0x000293891708f524  0x000b9c72840fa196  0x000b92b4f3a3bb3f
- 0x000a93891708f524  0x00139c72840fa196  0x001392b4f3a3bb3f
- 0x001a93891708f524  0x00039c72840fa196  0x000392b4f3a3bb3f</code></pre><pre><code class="language-julia hljs">xbs[2]
+4×4 Matrix{UInt64}:
+ 0x001293891708f524  0x001b9c72840fa196  …  0x001d6f2b8e3bf612
+ 0x000293891708f524  0x000b9c72840fa196     0x000d6f2b8e3bf612
+ 0x000a93891708f524  0x00139c72840fa196     0x00156f2b8e3bf612
+ 0x001a93891708f524  0x00039c72840fa196     0x00056f2b8e3bf612</code></pre><pre><code class="language-julia hljs">xbs[2]
 # output
-4×3 Matrix{UInt64}:
- 0x0016da39893c2ad5  0x00167b863bac2dff  0x00006a9dbda72567
- 0x0006da39893c2ad5  0x00067b863bac2dff  0x00106a9dbda72567
- 0x000eda39893c2ad5  0x001e7b863bac2dff  0x00086a9dbda72567
- 0x001eda39893c2ad5  0x000e7b863bac2dff  0x00186a9dbda72567</code></pre><pre><code class="language-julia hljs">BinaryToFloat64(xbs,rds_multiple)</code></pre><pre><code class="language-julia hljs">Reset!(ds)
+4×4 Matrix{UInt64}:
+ 0x0016da39893c2ad5  0x00167b863bac2dff  …  0x001cd7a908e348e1
+ 0x0006da39893c2ad5  0x00067b863bac2dff     0x000cd7a908e348e1
+ 0x000eda39893c2ad5  0x001e7b863bac2dff     0x0014d7a908e348e1
+ 0x001eda39893c2ad5  0x000e7b863bac2dff     0x0004d7a908e348e1</code></pre><pre><code class="language-julia hljs">BinaryToFloat64(xbs,rds_multiple)</code></pre><pre><code class="language-julia hljs">Reset!(ds)
 NextBinary(RandomOwenScramble(ds,1,11),4)
 # output
-4×3 Matrix{UInt64}:
- 0x001a5eef4cd370c6  0x00028467570b42be  0x0003828fa0349158
- 0x000ff20fe5ead1ba  0x001cf89a1a9a2567  0x001e02e9de330269
- 0x000691102ee5e771  0x0009fddc7fb98782  0x000bb5aca8044288
- 0x001689e7a7bc5106  0x0014908fa8a77dff  0x00158be9ceaeef56</code></pre><p>Getting binary points with linear ordering is also supported. </p><pre><code class="language-julia hljs">Reset!(ds) # resets rds_single and rds_multiple as well
-FirstLinearBinary(ds,4)
+4×4 Matrix{UInt64}:
+ 0x001a5eef4cd370c6  0x00028467570b42be  …  0x0001a6384b638476
+ 0x000ff20fe5ead1ba  0x001cf89a1a9a2567     0x00151c3bba0d1d72
+ 0x000691102ee5e771  0x0009fddc7fb98782     0x000b360939d54a00
+ 0x001689e7a7bc5106  0x0014908fa8a77dff     0x001a7c08956e0175</code></pre><p>Getting binary points with linear ordering is also supported. </p><pre><code class="language-julia hljs">Reset!(ds) # resets rds_single and rds_multiple as well
+FirstLinearBinary(ds,2)
 # output
-4×3 Matrix{UInt64}:
- 0x0000000000000000  0x0000000000000000  0x0000000000000000
- 0x0000000080000000  0x0000000080000000  0x0000000080000000
- 0x0000000040000000  0x00000000c0000000  0x00000000c0000000
- 0x00000000c0000000  0x0000000040000000  0x0000000040000000</code></pre><pre><code class="language-julia hljs">FirstLinearBinary(rds_single,4)
+4×4 Matrix{UInt64}:
+ 0x0000000000000000  0x0000000000000000  …  0x0000000000000000
+ 0x0000000080000000  0x0000000080000000     0x0000000080000000
+ 0x0000000040000000  0x00000000c0000000     0x00000000c0000000
+ 0x00000000c0000000  0x0000000040000000     0x0000000040000000</code></pre><pre><code class="language-julia hljs">FirstLinearBinary(rds_single,2)
 # output
-4×3 Matrix{UInt64}:
- 0x001293891708f524  0x0016da39893c2ad5  0x001b9c72840fa196
- 0x000293891708f524  0x0006da39893c2ad5  0x000b9c72840fa196
- 0x001a93891708f524  0x000eda39893c2ad5  0x00039c72840fa196
- 0x000a93891708f524  0x001eda39893c2ad5  0x00139c72840fa196</code></pre><pre><code class="language-julia hljs">xbs = FirstRLinearBinary(rds_multiple,4)
+4×4 Matrix{UInt64}:
+ 0x001293891708f524  0x0016da39893c2ad5  …  0x00167b863bac2dff
+ 0x000293891708f524  0x0006da39893c2ad5     0x00067b863bac2dff
+ 0x001a93891708f524  0x000eda39893c2ad5     0x000e7b863bac2dff
+ 0x000a93891708f524  0x001eda39893c2ad5     0x001e7b863bac2dff</code></pre><pre><code class="language-julia hljs">xbs = FirstRLinearBinary(rds_multiple,2)
 xbs[1]
 # output
-4×3 Matrix{UInt64}:
- 0x001293891708f524  0x001b9c72840fa196  0x001b92b4f3a3bb3f
- 0x000293891708f524  0x000b9c72840fa196  0x000b92b4f3a3bb3f
- 0x001a93891708f524  0x00039c72840fa196  0x000392b4f3a3bb3f
- 0x000a93891708f524  0x00139c72840fa196  0x001392b4f3a3bb3f</code></pre><pre><code class="language-julia hljs">xbs[2]
+4×4 Matrix{UInt64}:
+ 0x001293891708f524  0x001b9c72840fa196  …  0x001d6f2b8e3bf612
+ 0x000293891708f524  0x000b9c72840fa196     0x000d6f2b8e3bf612
+ 0x001a93891708f524  0x00039c72840fa196     0x00056f2b8e3bf612
+ 0x000a93891708f524  0x00139c72840fa196     0x00156f2b8e3bf612</code></pre><pre><code class="language-julia hljs">xbs[2]
 # output
-4×3 Matrix{UInt64}:
- 0x0016da39893c2ad5  0x00167b863bac2dff  0x00006a9dbda72567
- 0x0006da39893c2ad5  0x00067b863bac2dff  0x00106a9dbda72567
- 0x001eda39893c2ad5  0x000e7b863bac2dff  0x00186a9dbda72567
- 0x000eda39893c2ad5  0x001e7b863bac2dff  0x00086a9dbda72567</code></pre><pre><code class="language-julia hljs">Reset!(ds)
-FirstLinearBinary(RandomOwenScramble(ds,1,11),4)
+4×4 Matrix{UInt64}:
+ 0x0016da39893c2ad5  0x00167b863bac2dff  …  0x001cd7a908e348e1
+ 0x0006da39893c2ad5  0x00067b863bac2dff     0x000cd7a908e348e1
+ 0x001eda39893c2ad5  0x000e7b863bac2dff     0x0004d7a908e348e1
+ 0x000eda39893c2ad5  0x001e7b863bac2dff     0x0014d7a908e348e1</code></pre><pre><code class="language-julia hljs">Reset!(ds)
+FirstLinearBinary(RandomOwenScramble(ds,1,11),2)
 # output
-4×3 Matrix{UInt64}:
- 0x001a5eef4cd370c6  0x00028467570b42be  0x0003828fa0349158
- 0x000ff20fe5ead1ba  0x001cf89a1a9a2567  0x001e02e9de330269
- 0x001691102ee5e771  0x0011fddc7fb98782  0x0013b5aca8044288
- 0x000689e7a7bc5106  0x000c908fa8a77dff  0x000d8be9ceaeef56</code></pre><p>These may be converted to floats as before. </p><h3 id="IID-Standard-Uniform-Generator"><a class="docs-heading-anchor" href="#IID-Standard-Uniform-Generator">IID Standard Uniform Generator</a><a id="IID-Standard-Uniform-Generator-1"></a><a class="docs-heading-anchor-permalink" href="#IID-Standard-Uniform-Generator" title="Permalink"></a></h3><p>We provide an IID <span>$\mathcal{U}[0,1]^s$</span> generator with the same API as lattice and digital sequences. This is a wrapper around <a href="https://docs.julialang.org/en/v1/stdlib/Random/#Random.Xoshiro"><code>Random.Xoshiro</code></a>.</p><p>For reproducibility, you may provide a seed.</p><pre><code class="language-julia hljs">iiduseq2 = IIDU01Seq(2,7)
+4×4 Matrix{UInt64}:
+ 0x001a5eef4cd370c6  0x00028467570b42be  …  0x0001a6384b638476
+ 0x000ff20fe5ead1ba  0x001cf89a1a9a2567     0x00151c3bba0d1d72
+ 0x001691102ee5e771  0x0011fddc7fb98782     0x001b360939d54a00
+ 0x000689e7a7bc5106  0x000c908fa8a77dff     0x000a7c08956e0175</code></pre><p>These may be converted to floats as before. </p><h3 id="IID-Standard-Uniform-Generator"><a class="docs-heading-anchor" href="#IID-Standard-Uniform-Generator">IID Standard Uniform Generator</a><a id="IID-Standard-Uniform-Generator-1"></a><a class="docs-heading-anchor-permalink" href="#IID-Standard-Uniform-Generator" title="Permalink"></a></h3><p>We provide an IID <span>$\mathcal{U}[0,1]^s$</span> generator with the same API as lattice and digital sequences. This is a wrapper around <a href="https://docs.julialang.org/en/v1/stdlib/Random/#Random.Xoshiro"><code>Random.Xoshiro</code></a>.</p><p>For reproducibility, you may provide a seed.</p><pre><code class="language-julia hljs">iiduseq2 = IIDU01Seq(2,7)
 Next(iiduseq2,4)
 # output
 4×2 Matrix{Float64}:
@@ -462,4 +464,4 @@ for i=1:7 vlines!(ax,i/8,color=JULIA4LOGOCOLORS[3],alpha=1); hlines!(ax,i/8,colo
 for i=1:3 vlines!(ax,i/4,color=JULIA4LOGOCOLORS[2],alpha=1); hlines!(ax,i/4,color=JULIA4LOGOCOLORS[2],alpha=1) end 
 for i=1:1 vlines!(ax,i/2,color=JULIA4LOGOCOLORS[1],alpha=1); hlines!(ax,i/2,color=JULIA4LOGOCOLORS[1],alpha=1) end 
 hidespines!(ax); hidedecorations!(ax); hidexdecorations!(ax,grid = false); hideydecorations!(ax, ticks = false)
-save(joinpath(PLOTDIR,&quot;logo.svg&quot;),fig)</code></pre><p><img src="../assets/logo.svg" alt="image"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.25 on <span class="colophon-date" title="Friday 4 August 2023 21:02">Friday 4 August 2023</span>. Using Julia version 1.9.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+save(joinpath(PLOTDIR,&quot;logo.svg&quot;),fig)</code></pre><p><img src="../assets/logo.svg" alt="image"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.25 on <span class="colophon-date" title="Friday 4 August 2023 21:16">Friday 4 August 2023</span>. Using Julia version 1.9.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
