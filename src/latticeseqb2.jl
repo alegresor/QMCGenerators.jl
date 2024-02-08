@@ -18,7 +18,13 @@ function LatticeSeqB2(s::Int64,z::Vector{BigInt},m::Int64)
     LatticeSeqB2("Lattice Seq B2",s,z,m,n,scale,-1)
 end
 
-LatticeSeqB2(s::Int64,path::String,m::Int64) = LatticeSeqB2(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/LATSEQ/",path)),BigInt)[:,1],m)
+function LatticeSeqB2(s::Int64,path::String)
+    if !isfile(path) path = download(joinpath("https://raw.githubusercontent.com/QMCSoftware/LDData/main/lattice/",path)) end 
+    datafile = readdlm(path,String;comments=true)
+    m = Int64(log2(parse(Int64,datafile[2,1])))
+    z = parse.(BigInt,datafile[3:end,1])
+    LatticeSeqB2(s,z,m)
+end 
 
 LatticeSeqB2(s::Int64) = LatticeSeqB2(s,DEFAULT_LATTICESEQB2_GVECTOR,20)
 

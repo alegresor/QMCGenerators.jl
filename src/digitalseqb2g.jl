@@ -5,13 +5,16 @@ struct LinearMatrixScramble
     t::Int64
 end
 
-function LinearMatrixScramble(s::Int64,Cs::Matrix{BigInt},rng::Xoshiro) # Matousek
-    @assert s <= size(Cs,1)
-    m = size(Cs,2)
-    tog = maximum(ndigits.(Cs[1:s,:],base=2))
-    @assert tog<=64
+function LinearMatrixScramble(s::Int64,Csr::Matrix{BigInt},tog::Int64,rng::Xoshiro) # Matousek
+    @assert s <= size(Csr,1)
+    Csr = Csr[1:s,:]
+    m = size(Csr,2)
+    if tog>64
+        Csr .>>= (tog-64)
+        tog = 64 
+    end
+    Csr = convert.(UInt64,Csr)
     t = max(53,tog)
-    Csr = convert.(UInt64,bitreverse.(Cs[1:s,:],tog))
     Csrlms = zeros(UInt64,s,m)
     for j=1:s
         for k=0:t-1
@@ -31,24 +34,31 @@ function LinearMatrixScramble(s::Int64,Cs::Matrix{BigInt},rng::Xoshiro) # Matous
     LinearMatrixScramble(s,Csrlms,m,t)
 end
 
-LinearMatrixScramble(s::Int64,Cs::Matrix{BigInt},seed::Int64) = LinearMatrixScramble(s,Cs,Xoshiro(seed))
+LinearMatrixScramble(s::Int64,Csr::Matrix{BigInt},tog::Int64,seed::Int64) = LinearMatrixScramble(s,Csr,tog,Xoshiro(seed))
+LinearMatrixScramble(s::Int64,Csr::Matrix{BigInt},tog::Int64) = LinearMatrixScramble(s,Csr,tog,Xoshiro())
 
-LinearMatrixScramble(s::Int64,Cs::Matrix{BigInt}) = LinearMatrixScramble(s,Cs,Xoshiro())
+function LinearMatrixScramble(s::Int64,path::String,rng::Xoshiro)
+    if !isfile(path) path = download(joinpath("https://raw.githubusercontent.com/QMCSoftware/LDData/main/dnet/",path)) end
+    datafile = readdlm(path,String;comments=true)
+    b = parse(Int64,datafile[1,1]); @assert b == 2 
+    tog = parse(Int64,datafile[4,1])
+    Csr = parse.(BigInt,datafile[5:end,:])
+    LinearMatrixScramble(s,Csr,tog,rng)
+end 
 
-LinearMatrixScramble(s::Int64,path::String,rng::Xoshiro) = LinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt),rng)
-LinearMatrixScramble(s::Int64,path::String,seed::Int64) = LinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt),seed)
-LinearMatrixScramble(s::Int64,path::String) = LinearMatrixScramble(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt))
+LinearMatrixScramble(s::Int64,path::String,seed::Int64) = LinearMatrixScramble(s,path,Xoshiro(seed))
+LinearMatrixScramble(s::Int64,path::String) = LinearMatrixScramble(s,path,Xoshiro())
 
-LinearMatrixScramble(s::Int64,rng::Xoshiro) = LinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX,rng)
-LinearMatrixScramble(s::Int64,seed::Int64) = LinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX,seed)
-LinearMatrixScramble(s::Int64) = LinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX)
+LinearMatrixScramble(s::Int64,rng::Xoshiro) = LinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX,Int64(32),rng)
+LinearMatrixScramble(s::Int64,seed::Int64) = LinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX,Int64(32),Xoshiro(seed))
+LinearMatrixScramble(s::Int64) = LinearMatrixScramble(s,DEFAULT_DIGITALSEQB2G_GMATRIX,Int64(32),Xoshiro())
 
 mutable struct DigitalSeqB2G
     const name::String
     const s::Int64 # dimension
     const Csr::Matrix{UInt64}
     const m::Int64 # number of columns, can generate 2^m points
-    const t::Int64 # maximum number of bits in an element of Cs
+    const t::Int64 # maximum number of bits in an element of Csr
     const alpha::Float64 # t/m, the order of the net 
     const n::Int64 # maximum number of supported points
     const recipd::Union{BigFloat,Float64} # multiplication factor
@@ -56,22 +66,32 @@ mutable struct DigitalSeqB2G
     cur::Vector{UInt64}
 end
 
-function DigitalSeqB2G(s::Int64,Cs::Matrix{BigInt})
-    @assert s <= size(Cs,1)
-    m = size(Cs,2)
-    t = maximum(ndigits.(Cs[1:s,:],base=2))
-    @assert t<=64
+function DigitalSeqB2G(s::Int64,Csr::Matrix{BigInt},t::Int64)
+    @assert s <= size(Csr,1)
+    Csr = Csr[1:s,:]
+    m = size(Csr,2)
+    if t>64
+        Csr .>>= (t-64)
+        t = 64 
+    end
+    Csr = convert.(UInt64,Csr)
     alpha = t/m 
     n = 2^m
     recipd = t>53 ? BigFloat(2)^(-t) : Float64(2)^(-t)
-    Csr = convert.(UInt64,bitreverse.(Cs[1:s,:],t))
     cur = zeros(UInt64,s)
     DigitalSeqB2G("Digital Seq B2",s,Csr,m,t,alpha,n,recipd,-1,cur)
 end
 
-DigitalSeqB2G(s::Int64,path::String) = DigitalSeqB2G(s,readdlm(download(joinpath("https://bitbucket.org/dnuyens/qmc-generators/raw/cb0f2fb10fa9c9f2665e41419097781b611daa1e/DIGSEQ/",path)),BigInt))
+function DigitalSeqB2G(s::Int64,path::String)
+    if !isfile(path) path = download(joinpath("https://raw.githubusercontent.com/QMCSoftware/LDData/main/dnet/",path)) end 
+    datafile = readdlm(path,String;comments=true)
+    b = parse(Int64,datafile[1,1]); @assert b == 2 
+    t = parse(Int64,datafile[4,1])
+    Csr = parse.(BigInt,datafile[5:end,:])
+    DigitalSeqB2G(s,Csr,t)
+end
 
-DigitalSeqB2G(s::Int64) = DigitalSeqB2G(s,DEFAULT_DIGITALSEQB2G_GMATRIX)
+DigitalSeqB2G(s::Int64) = DigitalSeqB2G(s,DEFAULT_DIGITALSEQB2G_GMATRIX,Int64(32))
 
 function DigitalSeqB2G(rlms::LinearMatrixScramble)
     alpha = rlms.t/rlms.m

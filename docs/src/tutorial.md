@@ -328,10 +328,12 @@ Reset!(rls)
 
 #### Pregenerated
 
-We include many alternative generating matrices for digital sequences in [this directory](https://bitbucket.org/dnuyens/qmc-generators/src/master/DIGSEQ/). To use an alternative, simply supply the relative path 
+We support user defined generating matrices for digital sequences and lattice sequences in the formats specified by the [LDData repository](https://github.com/QMCSoftware/LDData/tree/main). 
+
+For digital sequences, you may supply a path to a local file or a relative path from [`https://github.com/QMCSoftware/LDData/tree/main/dnet`](https://github.com/QMCSoftware/LDData/tree/main/dnet) as shown below
 
 ```jldoctest 
-ds = DigitalSeqB2G(3,"sobolmats/sobol_alpha2_Bs64.col")
+ds = DigitalSeqB2G(3,"mps.sobol_alpha2_Bs64.txt")
 Next(ds,4)
 # output
 4×3 Matrix{Float64}:
@@ -341,10 +343,10 @@ Next(ds,4)
  0.4375  0.9375  0.1875
 ```
 
-Linear matrix scrambling also accepts these relative paths 
+Linear matrix scrambling also accepts these paths 
 
 ```jldoctest 
-ds = DigitalSeqB2G(LinearMatrixScramble(3,"sobolmats/sobol_alpha2_Bs64.col",11))
+ds = DigitalSeqB2G(LinearMatrixScramble(3,"mps.sobol_alpha2_Bs64.txt",11))
 Next(ds,4)
 # output
 4×3 Matrix{Float64}:
@@ -354,10 +356,10 @@ Next(ds,4)
  0.251783  0.983926  0.233902
 ```
 
-Alternative lattice generating vectors are available in [this directory](https://bitbucket.org/dnuyens/qmc-generators/src/master/LATSEQ/). For Lattices, after supplying the path you also need to pass the $m$ value in the file name
+For lattice sequences, you may supply a path to a local file or a relative path from [`https://github.com/QMCSoftware/LDData/tree/main/lattice`](https://github.com/QMCSoftware/LDData/tree/main/lattice) as shown below
 
 ```jldoctest
-ls = LatticeSeqB2(3,"exod8_base2_m13.txt",13)
+ls = LatticeSeqB2(3,"mps.exod8_base2_m13.txt")
 Next(ls,4)
 # output
 4×3 Matrix{Float64}:
@@ -369,21 +371,12 @@ Next(ls,4)
 
 #### User Defined
 
-One may supply their own generating matrix to construct a base 2 digital sequence, for example
+For digital sequences, you may supply the generating matrix followed by $t$ where $t$ is the number of bits in each integer representations
 
 ```jldoctest tut_ds_custom_matrix
-m = 5
-C1 = [BigInt(2^i) for i=0:(m-1)]
-C2 = [BigInt(1) for i=1:m]
-for i in 2:m C2[i] = (C2[i-1] << 1) ⊻ C2[i-1] end
-generating_matrix = vcat(C1',C2')
-# output
-2×5 Matrix{BigInt}:
- 1  2  4   8  16
- 1  3  5  15  17
-```
-```jldoctest tut_ds_custom_matrix
-ds = DigitalSeqB2G(2,generating_matrix)
+t = 5
+generating_matrix = Matrix{BigInt}([16 8 4 2 1; 16 24 20 30 17])
+ds = DigitalSeqB2G(2,generating_matrix,t)
 Next(ds,4)
 # output
 4×2 Matrix{Float64}:
@@ -396,7 +389,7 @@ Next(ds,4)
 Linear matrix scrambling also accommodates such constructions 
 
 ```jldoctest tut_ds_custom_matrix
-ds = DigitalSeqB2G(LinearMatrixScramble(2,generating_matrix,11))
+ds = DigitalSeqB2G(LinearMatrixScramble(2,generating_matrix,t,11))
 Next(ds,4)
 # output
 4×2 Matrix{Float64}:
