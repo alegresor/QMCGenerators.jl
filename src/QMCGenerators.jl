@@ -2,7 +2,6 @@ module QMCGenerators
 
 import DelimitedFiles: readdlm
 import Random: Xoshiro
-import CairoMakie
 using LaTeXStrings
 
 include("util.jl")
@@ -22,7 +21,12 @@ export IIDU01Seq
 include("common.jl")
 export Reset!,Next,NextR,NextBinary,FirstLinear,BinaryToFloat64,NextBinary,FirstLinearBinary,FirstRLinear
 
-include("plots.jl")
-export qmcscatter!,JULIA4LOGOCOLORS
+try
+    import CairoMakie
+    include("plots.jl")
+    export qmcscatter!,JULIA4LOGOCOLORS
+catch
+    nothing;
+end
 
 end 
