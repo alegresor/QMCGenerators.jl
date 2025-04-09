@@ -866,7 +866,7 @@ xsets = [
     NextR(rseqs[3],n)]
 f(x::Vector{Float64}) = π^(s/2)*cos(norm(quantile.(Normal(),x)/sqrt(2)));
 f(x::Matrix{Float64}) = map(i->f(x[i,:]),1:size(x,1))
-fig = Figure(resolution=(800,500))
+fig = Figure(size=(800,500))
 ax = Axis(fig[2,1],
     xlabel = L"$n$",
     ylabel = L"$| \hat{\mu} - \mu |$",
@@ -900,7 +900,7 @@ CairoMakie.Screen{SVG}
 nvec = [1,4,16,64]
 rds = RandomOwenScramble(DigitalSeqB2G(2),1,17)
 x = Next(rds,maximum(nvec))
-fig = Figure(resolution=(500,500),backgroundcolor=:transparent)
+fig = Figure(size=(500,500),backgroundcolor=:transparent)
 ax = Axis(fig[1,1],aspect=1,xticklabelsvisible=false,yticklabelsvisible=false,backgroundcolor=:transparent)
 qmcscatter!(ax,x,nvec)
 limits!(ax,[-0.01,1.01],[-0.01,1.01])
