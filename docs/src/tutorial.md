@@ -894,7 +894,7 @@ CairoMakie.Screen{SVG}
 
 ![image](./assets/mc_vs_qmc.svg)
 
-### Logo 
+### Logo
 
 ```jldoctest plots; output = false
 nvec = [1,4,16,64]
