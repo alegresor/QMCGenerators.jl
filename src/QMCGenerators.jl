@@ -2,9 +2,11 @@ module QMCGenerators
 
 import DelimitedFiles: readdlm
 import Random: Xoshiro
+import CairoMakie
+using LaTeXStrings
 
 include("util.jl")
-export spawn
+export bitreverse,spawn
 
 include("digitalseqb2g_default_gmatrix.jl")
 include("digitalseqb2g.jl")
@@ -20,13 +22,7 @@ export IIDU01Seq
 include("common.jl")
 export Reset!,Next,NextR,NextBinary,FirstLinear,BinaryToFloat64,NextBinary,FirstLinearBinary,FirstRLinear
 
-try
-    import CairoMakie
-    using LaTeXStrings
-    include("plots.jl")
-    export qmcscatter!,JULIA4LOGOCOLORS
-catch
-    nothing;
-end
+include("plots.jl")
+export qmcscatter!,JULIA4LOGOCOLORS
 
 end 
