@@ -20,13 +20,13 @@ export IIDU01Seq
 include("common.jl")
 export Reset!,Next,NextR,NextBinary,FirstLinear,BinaryToFloat64,NextBinary,FirstLinearBinary,FirstRLinear
 
-try
-    import CairoMakie
-    using LaTeXStrings
-    include("plots.jl")
-    export qmcscatter!,JULIA4LOGOCOLORS
-catch
-    nothing;
-end
+#try
+import CairoMakie
+using LaTeXStrings
+include("plots.jl")
+export qmcscatter!,JULIA4LOGOCOLORS
+# catch
+#     nothing;
+# end
 
 end 
